@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Controle</title>
+
+  <meta name="theme-color" content="#030712">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%232563eb'/><text x='50' y='66' font-size='44' font-family='sans-serif' font-weight='900' fill='white' text-anchor='middle'>PCP</text></svg>">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Roboto Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .font-excel {
+      font-family: 'Roboto Mono', ui-monospace, monospace;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #64748b;
+      border-radius: 4px;
+    }
+
+    @keyframes spinGear {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin-custom {
+      animation: spinGear 1.3s linear infinite;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 4mm 3mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      header,
+      .no-print,
+      #dateModal,
+      #detailSidebar,
+      #sidebarBackdrop,
+      #kpiContainer,
+      #searchBarArea {
+        display: none !important;
+      }
+
+      main {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+    }
+  </style>
+</head>
+
+<body
+  class="h-full bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100 flex flex-col antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
+
+  <!-- CABEÇALHO FIXO MOBILE -->
+  <header
+    class="bg-white/95 border-slate-200 dark:bg-slate-950/95 dark:border-slate-800/80 backdrop-blur-md px-3.5 pt-2.5 pb-2 border-b sticky top-0 z-40 flex-none space-y-2.5 no-print">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div id="badgeLogo"
+          class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-blue-600/30">
+          PCP
+        </div>
+        <div>
+          <h1 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">Controle</h1>
+          <div class="flex items-center space-x-1 mt-1">
+            <svg id="statusWifiIcon" class="w-3 h-3 text-emerald-500 transition-colors" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+              <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+              <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+            <span id="statusText" class="text-[10.5px] font-bold text-emerald-600 dark:text-emerald-400">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-1.5">
+        <button onclick="toggleThemeMode()" title="Alternar Tema"
+          class="p-2 rounded-lg bg-slate-200/80 active:bg-slate-300 dark:bg-slate-900 dark:active:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-800 transition cursor-pointer">
+          <svg id="themeIconSun" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
+          <svg id="themeIconMoon" class="w-4 h-4 block dark:hidden text-indigo-600" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.03 9.03 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+        <button onclick="fetchApiData(true)" title="Atualizar"
+          class="p-2 rounded-lg bg-slate-200/80 active:bg-slate-300 dark:bg-slate-900 dark:active:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-800 transition cursor-pointer">
+          <svg id="refreshIconSvg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+            </path>
+          </svg>
+        </button>
+        <button onclick="handlePrintDocument()" title="Imprimir"
+          class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-indigo-50 active:bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-slate-900 dark:active:bg-slate-800 dark:border-slate-700 dark:text-blue-400 text-xs font-bold flex items-center space-x-1 transition cursor-pointer">
+          <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+            </path>
+          </svg>
+          <span class="hidden sm:inline">Imprimir</span>
+        </button>
+        <button onclick="exportToExcelStyled()" title="Exportar Excel"
+          class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-emerald-600 active:bg-emerald-700 text-white dark:bg-emerald-950/80 dark:active:bg-emerald-900 dark:border dark:border-emerald-700/60 dark:text-emerald-300 text-xs font-bold flex items-center space-x-1 transition cursor-pointer">
+          <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          <span class="hidden sm:inline">Excel</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Linha 2: Faixa de Período Clicável -->
+    <div onclick="openDateModal()"
+      class="bg-slate-50 border-slate-300 dark:bg-slate-900/90 dark:border-slate-800 border rounded-xl px-3 py-2 flex items-center justify-between text-xs active:scale-[0.99] transition cursor-pointer">
+      <div class="flex items-center space-x-2 text-slate-600 dark:text-slate-300">
+        <svg class="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6" stroke-width="2"></line>
+          <line x1="8" y1="2" x2="8" y2="6" stroke-width="2"></line>
+          <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"></line>
+        </svg>
+        <span class="text-slate-500 dark:text-slate-400" id="periodPrefix">Período:</span>
+        <span id="periodLabel" class="font-extrabold text-slate-900 dark:text-white">Carregando...</span>
+      </div>
+      <span
+        class="text-blue-600 dark:text-blue-400 font-bold text-[11px] px-2 py-0.5 bg-blue-50 dark:bg-blue-950/60 rounded-md">
+        Alterar
+      </span>
+    </div>
+
+    <!-- Linha 3: Abas com Scroll Horizontal -->
+    <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar pb-0.5 text-xs whitespace-nowrap">
+      <button id="tabApoio" onclick="switchActiveTab('apoio')"
+        class="px-3.5 py-1.5 rounded-full font-bold flex items-center space-x-1.5 bg-blue-600 text-white shadow-sm flex-shrink-0 cursor-pointer transition">
+        <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+        <span>Apoio Almox</span>
+      </button>
+      <button id="tabCorte" onclick="switchActiveTab('corte')"
+        class="px-3.5 py-1.5 rounded-full font-semibold bg-slate-200 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border border-slate-300 dark:border-slate-800 flex-shrink-0 cursor-pointer transition">
+        <span>Visão Corte</span>
+      </button>
+      <button id="tabSerigrafia" onclick="switchActiveTab('serigrafia')"
+        class="px-3.5 py-1.5 rounded-full font-semibold bg-slate-200 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border border-slate-300 dark:border-slate-800 flex-shrink-0 cursor-pointer transition">
+        <span>Visão Serigrafia</span>
+      </button>
+      <button id="tabRetorno" onclick="switchActiveTab('retorno')"
+        class="px-3.5 py-1.5 rounded-full font-semibold bg-slate-200 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border border-slate-300 dark:border-slate-800 flex-shrink-0 cursor-pointer transition">
+        <span>Retorno</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5" id="mainContainer">
+
+    <!-- CARDS DE METAS -->
+    <div id="kpiContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 no-print">
+      <!-- 1. Volume Total Programado -->
+      <div
+        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
+        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-blue-500 rounded-r-full"></div>
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <span
+              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Volume
+              Total Programado</span>
+            <span id="kpiTotalGeral"
+              class="text-xl font-black text-slate-900 dark:text-white font-excel mt-0.5 block">0</span>
+            <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+              <span>Acumulado do Período</span>
+            </span>
+          </div>
+          <div
+            class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Dentro do Prazo -->
+      <div
+        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
+        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-amber-500 rounded-r-full"></div>
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <span
+              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Dentro
+              do Prazo</span>
+            <span id="kpiDentroPrazo"
+              class="text-xl font-black text-amber-700 dark:text-amber-400 font-excel mt-0.5 block">0</span>
+            <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400/90 mt-1 flex items-center gap-1">
+              <span>✓ Data Hoje para Frente</span>
+            </span>
+          </div>
+          <div
+            class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Volume em Atraso -->
+      <div
+        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
+        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-rose-500 rounded-r-full"></div>
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <span
+              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Volume
+              em Atraso</span>
+            <span id="kpiVolumeAtraso"
+              class="text-xl font-black text-rose-600 dark:text-rose-400 font-excel mt-0.5 block">0</span>
+            <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400/90 mt-1 flex items-center gap-1">
+              <span>↺ Datas Anteriores a Hoje</span>
+            </span>
+          </div>
+          <div
+            class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Média Diária no Prazo -->
+      <div
+        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
+        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-emerald-500 rounded-r-full"></div>
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <span
+              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Média
+              Diária no Prazo</span>
+            <span id="kpiMediaProgramada"
+              class="text-xl font-black text-emerald-600 dark:text-emerald-400 font-excel mt-0.5 block">0</span>
+            <span id="kpiDiasProgramados"
+              class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400/90 mt-1 block">
+              Pares / Dia Útil Futuro
+            </span>
+          </div>
+          <div
+            class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Média Verificada com Atraso -->
+      <div
+        class="col-span-2 sm:col-span-1 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
+        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-purple-500 rounded-r-full"></div>
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <span
+              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Média
+              Verificada c/ Atraso</span>
+            <span id="kpiMediaComAtraso"
+              class="text-xl font-black text-purple-600 dark:text-purple-400 font-excel mt-0.5 block">0</span>
+            <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400/90 mt-1 block">
+              ⚖ Total / Dias Úteis Prazo
+            </span>
+          </div>
+          <div
+            class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA DE BUSCA + SUB-FILTROS -->
+    <div id="searchBarArea" class="space-y-2 no-print">
+      <div class="flex items-center space-x-2">
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </span>
+          <input type="text" id="searchInput" oninput="onSearchInput(this.value)"
+            placeholder="Buscar modelo, apoio, serigrafia..."
+            class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border-slate-300 text-slate-900 dark:bg-slate-900/90 dark:border-slate-800 border text-xs dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+        </div>
+        <button onclick="toggleSortOrder()" title="Inverter ordenação"
+          class="p-2.5 rounded-xl bg-white border-slate-300 dark:bg-slate-900 dark:border-slate-800 border text-slate-600 dark:text-slate-400 active:scale-95 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="subFilterRetorno"
+        class="hidden flex items-center space-x-1.5 overflow-x-auto no-scrollbar pt-0.5 text-xs">
+        <button onclick="setRetornoFilter('todos')" id="subBtnRetornoTodos"
+          class="px-3 py-1 rounded-lg font-bold bg-teal-600 text-white cursor-pointer transition">Todos</button>
+        <button onclick="setRetornoFilter('ENF')" id="subBtnRetornoEnf"
+          class="px-3 py-1 rounded-lg font-semibold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-800 cursor-pointer transition">ENF</button>
+        <button onclick="setRetornoFilter('SERIG')" id="subBtnRetornoSerig"
+          class="px-3 py-1 rounded-lg font-semibold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-800 cursor-pointer transition">SERIG</button>
+      </div>
+    </div>
+
+    <!-- TÍTULO DA LISTAGEM E ORDEM -->
+    <div class="flex items-center justify-between text-xs pt-0.5 no-print">
+      <span id="sectionFeedTitle"
+        class="text-[10.5px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ordens
+        Ativas</span>
+      <button onclick="toggleSortOrder()" id="sortOrderLabel"
+        class="text-blue-600 dark:text-blue-400 font-bold text-[11px] cursor-pointer">
+        Ordem: Crescente ↑
+      </button>
+    </div>
+
+    <!-- FEED DINÂMICO DE CARDS -->
+    <div id="cardsFeedContainer" class="space-y-3 pb-16"></div>
+  </main>
+
+  <!-- MODAL DE DATAS -->
+  <div id="dateModal"
+    class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden no-print">
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-xs w-full p-4 space-y-4 shadow-2xl">
+      <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <svg class="w-4 h-4 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <span id="modalDateTitle">Ajustar Período</span>
+      </h3>
+      <div id="modalDateInputs" class="space-y-3 text-xs"></div>
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button onclick="clearDateFilter();"
+          class="px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs cursor-pointer">Limpar</button>
+        <button onclick="applyDateFilter();"
+          class="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold text-xs cursor-pointer">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET (DETALHES DAS ORDENS) -->
+  <div id="sidebarBackdrop" onclick="closeDetailSidebar()"
+    class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden transition-opacity no-print"></div>
+  <aside id="detailSidebar"
+    class="fixed inset-x-0 bottom-0 max-h-[85vh] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 rounded-t-3xl z-50 transform translate-y-full transition-transform duration-300 ease-out flex flex-col shadow-2xl no-print">
+    <div class="w-full flex items-center justify-center pt-3 pb-2 cursor-pointer" onclick="closeDetailSidebar()">
+      <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+    </div>
+    <div class="px-4 pb-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <div>
+        <h3 class="text-xs font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">Ordens de Produção</h3>
+        <p id="sbSubheader" class="text-xs font-bold text-slate-900 dark:text-white mt-0.5">Selecione uma data</p>
+      </div>
+      <button onclick="closeDetailSidebar()"
+        class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div
+      class="bg-slate-50 dark:bg-slate-950/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
+      <div>
+        <span class="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold block">Modelo</span>
+        <span id="sbModelo" class="font-extrabold text-slate-900 dark:text-white text-xs">---</span>
+      </div>
+      <div class="text-right">
+        <span class="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold block">Volume do Dia</span>
+        <span id="sbTotalQtd" class="font-black text-blue-600 dark:text-blue-400 text-sm font-excel">0 prs</span>
+      </div>
+    </div>
+    <div id="sbOrdersList" class="flex-1 overflow-y-auto p-4 space-y-2.5 overscroll-contain"></div>
+  </aside>
+
+  <!-- Lógica Javascript Integrada -->
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxAMkZt3szyJ9T2-Dp001LAzs-mmkzbMKLyAcL5crqB2mQegS9bsQchyLkYWantndkZ-Q/exec";
+    const CACHE_KEY = "DASHBOARD_PIVOT_DATA_MOBILE_V6";
+    const THEME_KEY = "PCP_THEME_PREFERENCE";
+
+    let currentTab = 'apoio';
+    let rawApiRecords = [];
+    let activeSearchQuery = "";
+    let sortDescending = true;
+    let retornoFilterMode = 'todos';
+
+    const tabDateFilters = {
+      apoio: {start: '', end: '', allDates: [], sortedDates: []},
+      corte: {start: '', end: '', allDates: [], sortedDates: []},
+      serigrafia: {start: '', end: '', allDates: [], sortedDates: []},
+      retorno: {start: '', end: '', allDates: [], sortedDates: []}
+    };
+
+    let dataApoio = [];
+    let dataCorte = [];
+    let dataSerigrafia = [];
+    let dataRetorno = [];
+
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+    function toggleThemeMode() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem(THEME_KEY, 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem(THEME_KEY, 'dark');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        try {
+          rawApiRecords = JSON.parse(cached);
+          updateStatus('emerald', 'Online');
+          rebuildAllData();
+          renderCurrentTab();
+        } catch (e) { }
+      }
+      fetchApiData(false);
+    });
+
+    async function fetchApiData(forceRefresh = false) {
+      const refreshIcon = document.getElementById('refreshIconSvg');
+      if (refreshIcon) refreshIcon.classList.add('animate-spin-custom');
+      updateStatus('amber', 'Sincronizando...');
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'GET',
+          headers: {'Accept': 'application/json'}
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          rawApiRecords = data;
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          updateStatus('emerald', 'Online');
+        }
+      } catch (err) {
+        updateStatus(rawApiRecords.length > 0 ? 'emerald' : 'red', rawApiRecords.length > 0 ? 'Online' : 'Offline');
+      } finally {
+        if (refreshIcon) refreshIcon.classList.remove('animate-spin-custom');
+        rebuildAllData();
+        renderCurrentTab();
+      }
+    }
+
+    function getLinhaApoioAlmox(item) {
+      if (!item) return '';
+      const directKeys = ['LINHA_APOIO_ALMOX', 'LINHA APOIO ALMOX', 'LINHAAPOIOALMOX'];
+      for (const k of directKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return String(item[k]).trim();
+        }
+      }
+      for (const key in item) {
+        const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+        if (norm === 'LINHAAPOIOALMOX') {
+          return String(item[key] || '').trim();
+        }
+      }
+      return '';
+    }
+
+    function parseNumericValue(raw) {
+      if (raw === undefined || raw === null) return 0;
+      if (typeof raw === 'number') return !isNaN(raw) && raw > 0 ? raw : 0;
+      const str = String(raw).trim();
+      if (!str) return 0;
+      const normalized = (str.includes(',') && str.includes('.'))
+        ? str.replace(/\./g, '').replace(',', '.')
+        : str.replace(',', '.');
+      const n = Number(normalized);
+      return !isNaN(n) && n > 0 ? n : 0;
+    }
+
+    function getStrictCleanDate(val) {
+      if (val === undefined || val === null) return null;
+      const str = String(val).trim();
+      if (!str || str === "---" || str.toLowerCase() === "null" || str.toLowerCase() === "undefined") return null;
+
+      if (str.includes("T") && !isNaN(Date.parse(str))) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          const day = String(d.getUTCDate()).padStart(2, '0');
+          const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+          return `${day}/${month}`;
+        }
+      }
+
+      const ymdMatch = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      if (ymdMatch) {
+        const month = parseInt(ymdMatch[2], 10);
+        const day = parseInt(ymdMatch[3], 10);
+        if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+          return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
+        }
+      }
+
+      const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})/);
+      if (dmyMatch) {
+        const day = parseInt(dmyMatch[1], 10);
+        const month = parseInt(dmyMatch[2], 10);
+        if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+          return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
+        }
+      }
+
+      if (/^\d{12,14}$/.test(str)) {
+        const d = new Date(Number(str));
+        if (!isNaN(d.getTime())) {
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          return `${day}/${month}`;
+        }
+      }
+      return null;
+    }
+
+    function extractItemDate(item, tab) {
+      if (!item) return null;
+
+      if (tab === 'corte') {
+        const keys = ['DATA_CORTE', 'DATA CORTE', 'DATA_DO_CORTE', 'CORTE_DATA', 'DT_CORTE'];
+        for (const k of keys) {
+          if (item[k]) {
+            const d = getStrictCleanDate(item[k]);
+            if (d) return d;
+          }
+        }
+        return null;
+      }
+
+      if (tab === 'serigrafia') {
+        const keys = ['DATA_SERIG', 'DATA SERIG', 'DATASERIG'];
+        for (const k of keys) {
+          if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+            const d = getStrictCleanDate(item[k]);
+            if (d) return d;
+          }
+        }
+        for (const k in item) {
+          const norm = k.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_]/g, '');
+          if (norm === 'DATASERIG') {
+            const d = getStrictCleanDate(item[k]);
+            if (d) return d;
+          }
+        }
+        return null;
+      }
+
+      if (tab === 'retorno') {
+        const keys = ['RETORNO_ALINHAMENTO', 'RETORNO ALINHAMENTO'];
+        for (const k of keys) {
+          if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+            const d = getStrictCleanDate(item[k]);
+            if (d) return d;
+          }
+        }
+        for (const k in item) {
+          const norm = k.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_]/g, '');
+          if (norm === 'RETORNOALINHAMENTO') {
+            const d = getStrictCleanDate(item[k]);
+            if (d) return d;
+          }
+        }
+        return null;
+      }
+
+      const generalKeys = ['DATA_ORIGINAL', 'DATA ORIGINAL', 'DATA_PROGRAMADA', 'DATA', 'DT_ORIGINAL'];
+      for (const k of generalKeys) {
+        if (item[k]) {
+          const d = getStrictCleanDate(item[k]);
+          if (d) return d;
+        }
+      }
+      return null;
+    }
+
+    function getTipoRetorno(item) {
+      if (!item) return '';
+      let rawMaterial = '';
+      const directKeys = ['TIPO_DE_MATERIAL', 'TIPO DE MATERIAL', 'TIPODEMATERIAL'];
+      for (const k of directKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          rawMaterial = String(item[k]).trim().toUpperCase();
+          break;
+        }
+      }
+      if (!rawMaterial) {
+        for (const key in item) {
+          const normKey = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_]/g, '');
+          if (normKey === 'TIPODEMATERIAL') {
+            rawMaterial = String(item[key] || '').trim().toUpperCase();
+            break;
+          }
+        }
+      }
+      if (rawMaterial.includes('ENF')) return 'ENF';
+      if (rawMaterial.includes('SERIG')) return 'SERIG';
+      return rawMaterial;
+    }
+
+    function parseDateToNumber(dStr) {
+      if (!dStr) return 0;
+      const p = dStr.split('/');
+      return (Number(p[1]) * 100) + Number(p[0]);
+    }
+
+    function compareApoioKeys(a, b) {
+      const numA = parseInt(String(a || '').replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(String(b || '').replace(/\D/g, ''), 10) || 0;
+      if (numA !== numB) {
+        return sortDescending ? (numA - numB) : (numB - numA);
+      }
+      return String(a || '').localeCompare(String(b || ''), undefined, {numeric: true});
+    }
+
+    function getMaqProg(item) {
+      if (!item) return '1';
+      const candidates = ['MÁQ._PROG', 'MÁQ_PROG', 'MAQ._PROG', 'MAQ_PROG', 'QT._MÁQ._P.', 'QT_MÁQ._P.'];
+      for (const key of candidates) {
+        if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') {
+          return String(item[key]).trim();
+        }
+      }
+      return '1';
+    }
+
+    function getItemQty(item) {
+      if (!item) return 0;
+      const keys = ['QTD_PROGRAMADA', 'QTD._APOIO', 'QTD_APOIO', 'QTD. APOIO', 'QTD_A_CORTAR'];
+      for (const k of keys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          const n = parseNumericValue(item[k]);
+          if (n > 0) return n;
+        }
+      }
+      return 0;
+    }
+
+    function getSerigQty(item) {
+      if (!item) return 0;
+      const directKeys = ['SERIG_SALDO', 'SERIG SALDO', 'Serig Saldo', 'Serig_Saldo', 'SERIGSALDO'];
+      for (const k of directKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return parseNumericValue(item[k]);
+        }
+      }
+      for (const key in item) {
+        const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+        if (norm === 'SERIGSALDO') {
+          return parseNumericValue(item[key]);
+        }
+      }
+      return 0;
+    }
+
+    function getSerigGiro(item) {
+      if (!item) return 0;
+      const directKeys = ['Serig_Giro', 'SERIG_GIRO', 'SERIG GIRO', 'Serig Giro', 'SERIGGIRO'];
+      for (const k of directKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return parseNumericValue(item[k]);
+        }
+      }
+      for (const key in item) {
+        const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+        if (norm === 'SERIGGIRO') {
+          return parseNumericValue(item[key]);
+        }
+      }
+      return 0;
+    }
+
+    function getSaldoCorte(item) {
+      if (!item) return 0;
+      const directKeys = ['Saldo_Cort.', 'SALDO_CORT.', 'SALDO_CORT', 'Saldo_Cort', 'SALDO CORT.', 'SALDO CORT'];
+      for (const k of directKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return parseNumericValue(item[k]);
+        }
+      }
+      for (const key in item) {
+        const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+        if (norm === 'SALDOCORT') {
+          return parseNumericValue(item[key]);
+        }
+      }
+      return 0;
+    }
+
+    function getKanbanCostProg(item) {
+      if (!item) return 0;
+      return parseNumericValue(item["KANBAN_COST_PROG"]);
+    }
+
+    function getKanbanCostAbast(item) {
+      if (!item) return 0;
+      return parseNumericValue(item["QT_ABAST_COST_9_(BASE_AGRUP)"]);
+    }
+
+    function getSupermercado(item) {
+      if (!item) return 0;
+      return parseNumericValue(item["SUPERMERCADO"]);
+    }
+
+    function isValidCorteRecord(item) {
+      if (!item) return false;
+      const cAuto = parseNumericValue(item.CORTE_AUTO);
+      const cManual = parseNumericValue(item.CORTE_MANUAL);
+      if ((cAuto + cManual) <= 0) return false;
+      const statusCandidates = [
+        item.STATUS_CORTE,
+        item.STATUS_SERIG_E_CORTE,
+        item.STATUS_DA_OPERAÇÃO,
+        item.STATUS_DA_OPERACAO,
+        item.STATUS_DA_OPERAÇÃO_042
+      ];
+      const validStatuses = ["FALTA CORTAR", "GIRO DE CORTE"];
+      return statusCandidates.some(st => {
+        if (!st) return false;
+        return validStatuses.includes(String(st).trim().toUpperCase());
+      });
+    }
+
+    function getTodayFormatted() {
+      const today = new Date();
+      const d = String(today.getDate()).padStart(2, '0');
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      return `${d}/${m}`;
+    }
+
+    function rebuildAllData() {
+      const query = activeSearchQuery.toLowerCase();
+
+      // Soma global de Serig_Giro e Kanbans por MODELO (ignora datas, saldos programados e linha de apoio)
+      const giroByModelo = new Map();
+      const giroOpsPorModelo = new Set();
+      const kanbanProgByModelo = new Map();
+      const kanbanCostByModelo = new Map();
+      const supermercadoByModelo = new Map();
+
+      for (let i = 0; i < rawApiRecords.length; i++) {
+        const item = rawApiRecords[i];
+        const modKey = String(item.MODELO || item.NOME_PRODUTO || '').trim().toUpperCase();
+        if (!modKey) continue;
+
+        const giroVal = getSerigGiro(item);
+        if (giroVal > 0) {
+          const opId = String(item.ORDEM || item.ORDEM_PRODUCAO || item.NUM_ORDEM || item.OP || '').trim();
+          const uniqueKey = opId ? `${modKey}|||${opId}|||${giroVal}` : `${modKey}|||ROW_${i}`;
+          if (!giroOpsPorModelo.has(uniqueKey)) {
+            giroOpsPorModelo.add(uniqueKey);
+            giroByModelo.set(modKey, (giroByModelo.get(modKey) || 0) + giroVal);
+          }
+        }
+
+        const kProg = getKanbanCostProg(item);
+        if (kProg > 0) {
+          kanbanProgByModelo.set(modKey, (kanbanProgByModelo.get(modKey) || 0) + kProg);
+        }
+
+        const kCost = getKanbanCostAbast(item);
+        if (kCost > 0) {
+          kanbanCostByModelo.set(modKey, (kanbanCostByModelo.get(modKey) || 0) + kCost);
+        }
+
+        const supVal = getSupermercado(item);
+        if (supVal > 0) {
+          supermercadoByModelo.set(modKey, (supermercadoByModelo.get(modKey) || 0) + supVal);
+        }
+      }
+    
+
+    ['apoio', 'corte', 'serigrafia', 'retorno'].forEach(tab => {
+      const dSet = new Set();
+      for (let i = 0, len = rawApiRecords.length; i < len; i++) {
+        const item = rawApiRecords[i];
+        if (tab === 'corte' && !isValidCorteRecord(item)) continue;
+        if (tab === 'serigrafia') {
+          const serig = String(item.LINHA_SERIGRAFIA_ALMOX || '').trim().toUpperCase();
+          if (!serig || serig === 'N. SERIG' || serig === 'N.SERIG' || serig === 'SEM SERIGRAFIA' || serig === 'SEM SERIG' || serig === '---') continue;
+          if (getSerigQty(item) <= 0) continue;
+        }
+        const dk = extractItemDate(item, tab);
+        if (dk) dSet.add(dk);
+      }
+      const sorted = Array.from(dSet).sort((a, b) => {
+        const pA = a.split('/');
+        const pB = b.split('/');
+        return (Number(pA[1]) - Number(pB[1])) || (Number(pA[0]) - Number(pB[0]));
+      });
+      tabDateFilters[tab].allDates = sorted;
+
+      if (tabDateFilters[tab].start && !sorted.includes(tabDateFilters[tab].start)) tabDateFilters[tab].start = "";
+      if (tabDateFilters[tab].end && !sorted.includes(tabDateFilters[tab].end)) tabDateFilters[tab].end = "";
+
+      const nStart = tabDateFilters[tab].start ? parseDateToNumber(tabDateFilters[tab].start) : 0;
+      const nEnd = tabDateFilters[tab].end ? parseDateToNumber(tabDateFilters[tab].end) : 999999;
+
+      let validSubset = sorted.filter(d => {
+        const num = parseDateToNumber(d);
+        return num >= nStart && num <= nEnd;
+      });
+      if (validSubset.length === 0 && sorted.length > 0) {
+        validSubset = [...sorted];
+        tabDateFilters[tab].start = "";
+        tabDateFilters[tab].end = "";
+      }
+      tabDateFilters[tab].sortedDates = validSubset;
+    });
+
+    updateTopBarPeriodDisplay();
+
+    // 1. APOIO ALMOX
+    const apoioStart = tabDateFilters.apoio.start ? parseDateToNumber(tabDateFilters.apoio.start) : 0;
+    const apoioEnd = tabDateFilters.apoio.end ? parseDateToNumber(tabDateFilters.apoio.end) : 999999;
+    const mapApoio = new Map();
+
+    for (let i = 0; i < rawApiRecords.length; i++) {
+      const item = rawApiRecords[i];
+      const dateKey = extractItemDate(item, 'apoio');
+      const qty = getItemQty(item);
+      if (!dateKey || qty <= 0) continue;
+      const dNum = parseDateToNumber(dateKey);
+      if (dNum < apoioStart || dNum > apoioEnd) continue;
+
+      const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
+      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+      const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
+      const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
+      const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
+      const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
+      const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
+      const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
+      const maqProg = getMaqProg(item);
+      const montagem = String(item.LINHA_MONTAGEM || '---').trim();
+      const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
+      const sola = String(item.SOLA || '').trim();
+      const familia = String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim();
+
+      if (query) {
+        const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+          serigrafia.toLowerCase().includes(query) || costura.toLowerCase().includes(query) ||
+          familia.toLowerCase().includes(query);
+        if (!match) continue;
+      }
+
+      const rowKey = `${apoio}|||${modelo}`;
+      let entry = mapApoio.get(rowKey);
+      if (!entry) {
+        const modUpper = modelo.toUpperCase();
+        entry = {
+          apoio, modelo, pessApoio, freq, serigrafia, pintores,
+          costura, pessCos, maqProg, montagem, pessMont, sola, familia,
+          serigGiro: giroByModelo.get(modUpper) || 0,
+          kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
+          kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+          supermercado: supermercadoByModelo.get(modUpper) || 0, // <-- Adicione esta linha
+          totalVolume: 0,
+          dates: Object.create(null),
+          recordsByDate: Object.create(null)
+        };
+        mapApoio.set(rowKey, entry);
+      }
+      entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
+      entry.totalVolume += qty;
+
+      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+      entry.recordsByDate[dateKey].push(item);
+    }
+    dataApoio = Array.from(mapApoio.values());
+
+    // 2. CORTE
+    const corteStart = tabDateFilters.corte.start ? parseDateToNumber(tabDateFilters.corte.start) : 0;
+    const corteEnd = tabDateFilters.corte.end ? parseDateToNumber(tabDateFilters.corte.end) : 999999;
+    const mapCorte = new Map();
+
+    for (let i = 0; i < rawApiRecords.length; i++) {
+      const item = rawApiRecords[i];
+      if (!isValidCorteRecord(item)) continue;
+      const dateKey = extractItemDate(item, 'corte');
+      if (!dateKey) continue;
+
+      const dNum = parseDateToNumber(dateKey);
+      if (dNum < corteStart || dNum > corteEnd) continue;
+
+      const rawApoio = getLinhaApoioAlmox(item);
+      if (!rawApoio || rawApoio === '---' || rawApoio.toUpperCase() === 'N/A') continue;
+
+      const cAuto = parseNumericValue(item.CORTE_AUTO);
+      const cManual = parseNumericValue(item.CORTE_MANUAL);
+      const totalCorte = cAuto + cManual;
+      const saldoCorte = getSaldoCorte(item);
+
+      const apoio = rawApoio;
+      const serig = String(item.LINHA_SERIGRAFIA_ALMOX || 'SEM SERIG').trim();
+      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+      const status = String(item.STATUS_CORTE || item.STATUS_DA_OPERAÇÃO || 'EM GIRO').trim();
+
+      if (query) {
+        const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+          serig.toLowerCase().includes(query) || status.toLowerCase().includes(query);
+        if (!match) continue;
+      }
+
+      const rowKey = `${apoio}|||${serig}|||${modelo}`;
+      let entry = mapCorte.get(rowKey);
+      if (!entry) {
+        entry = {
+          apoio, serig, modelo, status,
+          totalAuto: 0, totalManual: 0, totalVolume: 0, totalSaldoCorte: 0,
+          dates: Object.create(null),
+          recordsByDate: Object.create(null)
+        };
+        mapCorte.set(rowKey, entry);
+      }
+      if (!entry.dates[dateKey]) entry.dates[dateKey] = {auto: 0, manual: 0, total: 0, saldoCorte: 0};
+      entry.dates[dateKey].auto += cAuto;
+      entry.dates[dateKey].manual += cManual;
+      entry.dates[dateKey].total += totalCorte;
+      entry.dates[dateKey].saldoCorte += saldoCorte;
+
+      entry.totalAuto += cAuto;
+      entry.totalManual += cManual;
+      entry.totalVolume += totalCorte;
+      entry.totalSaldoCorte += saldoCorte;
+
+      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+      entry.recordsByDate[dateKey].push(item);
+    }
+    dataCorte = Array.from(mapCorte.values());
+
+    // 3. SERIGRAFIA
+    const serigStart = tabDateFilters.serigrafia.start ? parseDateToNumber(tabDateFilters.serigrafia.start) : 0;
+    const serigEnd = tabDateFilters.serigrafia.end ? parseDateToNumber(tabDateFilters.serigrafia.end) : 999999;
+    const mapSerig = new Map();
+
+    for (let i = 0; i < rawApiRecords.length; i++) {
+      const item = rawApiRecords[i];
+      const dateKey = extractItemDate(item, 'serigrafia');
+      const qty = getSerigQty(item);
+      if (!dateKey || qty <= 0) continue;
+
+      const dNum = parseDateToNumber(dateKey);
+      if (dNum < serigStart || dNum > serigEnd) continue;
+
+      const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '').trim();
+      const serigNorm = serigrafia.toUpperCase();
+
+      if (!serigrafia || serigNorm === 'N. SERIG' || serigNorm === 'N.SERIG' || serigNorm === 'SEM SERIGRAFIA' || serigNorm === 'SEM SERIG' || serigNorm === '---') {
+        continue;
+      }
+
+      const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
+      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+      const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
+      const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
+      const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
+      const maqProg = getMaqProg(item);
+      const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
+      const montagem = String(item.LINHA_MONTAGEM || '---').trim();
+      const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
+      const cor = item.COR || item.DESC_COR || 'Cor padrão';
+
+      if (query) {
+        const match = serigrafia.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+          apoio.toLowerCase().includes(query) || cor.toLowerCase().includes(query);
+        if (!match) continue;
+      }
+
+      const rowKey = `${serigrafia}|||${apoio}|||${modelo}`;
+      let entry = mapSerig.get(rowKey);
+      if (!entry) {
+        const modUpper = modelo.toUpperCase();
+        entry = {
+          serigrafia, apoio, modelo, pintores, cor,
+          costura, pessCos, maqProg, freq, montagem, pessMont,
+          serigGiro: giroByModelo.get(modUpper) || 0,
+          kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
+          kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+          totalVolume: 0,
+          dates: Object.create(null),
+          recordsByDate: Object.create(null)
+        };
+        mapSerig.set(rowKey, entry);
+      }
+      entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
+      entry.totalVolume += qty;
+
+      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+      entry.recordsByDate[dateKey].push(item);
+    }
+    dataSerigrafia = Array.from(mapSerig.values());
+
+    // 4. RETORNO
+    const retStart = tabDateFilters.retorno.start ? parseDateToNumber(tabDateFilters.retorno.start) : 0;
+    const retEnd = tabDateFilters.retorno.end ? parseDateToNumber(tabDateFilters.retorno.end) : 999999;
+    const mapRetorno = new Map();
+
+    for (let i = 0; i < rawApiRecords.length; i++) {
+      const item = rawApiRecords[i];
+      const dateKey = extractItemDate(item, 'retorno');
+      const qty = getItemQty(item);
+      if (!dateKey || qty <= 0) continue;
+      const dNum = parseDateToNumber(dateKey);
+      if (dNum < retStart || dNum > retEnd) continue;
+
+      const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
+      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+      const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
+      const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
+      const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
+      const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
+      const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
+      const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
+      const maqProg = getMaqProg(item);
+      const montagem = String(item.LINHA_MONTAGEM || '---').trim();
+      const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
+      const sola = String(item.SOLA || '').trim();
+      const familia = String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim();
+      const tipoOrigem = getTipoRetorno(item);
+
+      if (query) {
+        const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+          serigrafia.toLowerCase().includes(query) || costura.toLowerCase().includes(query) ||
+          familia.toLowerCase().includes(query) || tipoOrigem.toLowerCase().includes(query);
+        if (!match) continue;
+      }
+
+      const rowKey = `${apoio}|||${modelo}|||${tipoOrigem}`;
+      let entry = mapRetorno.get(rowKey);
+      if (!entry) {
+        const modUpper = modelo.toUpperCase();
+        entry = {
+          apoio, modelo, pessApoio, freq, serigrafia, pintores,
+          costura, pessCos, maqProg, montagem, pessMont, sola, familia,
+          tipoOrigem,
+          serigGiro: giroByModelo.get(modUpper) || 0,
+          kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
+          kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+          totalVolume: 0,
+          dates: Object.create(null),
+          recordsByDate: Object.create(null)
+        };
+        mapRetorno.set(rowKey, entry);
+      }
+      entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
+      entry.totalVolume += qty;
+
+      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+      entry.recordsByDate[dateKey].push(item);
+    }
+    dataRetorno = Array.from(mapRetorno.values());
+
+    sortCurrentDataset();
+    }
+
+    function updateTopBarPeriodDisplay() {
+      const periodEl = document.getElementById('periodLabel');
+      const prefixEl = document.getElementById('periodPrefix');
+      if (prefixEl) prefixEl.textContent = "Período:";
+      const currentSorted = tabDateFilters[currentTab]?.sortedDates;
+      if (periodEl) {
+        if (currentSorted && currentSorted.length > 0) {
+          periodEl.textContent = `${currentSorted[0]} a ${currentSorted[currentSorted.length - 1]}`;
+        } else {
+          periodEl.textContent = "Sem datas";
+        }
+      }
+    }
+
+    function sortCurrentDataset() {
+      const sortByApoioSequence = (a, b) => {
+        const keyA = (currentTab === 'serigrafia') ? a.serigrafia : a.apoio;
+        const keyB = (currentTab === 'serigrafia') ? b.serigrafia : b.apoio;
+
+        const cmp = compareApoioKeys(keyA, keyB);
+        if (cmp !== 0) return cmp;
+        return String(a.modelo || '').localeCompare(String(b.modelo || ''));
+      };
+
+      if (currentTab === 'apoio') dataApoio.sort(sortByApoioSequence);
+      if (currentTab === 'corte') dataCorte.sort(sortByApoioSequence);
+      if (currentTab === 'serigrafia') dataSerigrafia.sort(sortByApoioSequence);
+      if (currentTab === 'retorno') dataRetorno.sort(sortByApoioSequence);
+    }
+
+    function toggleSortOrder() {
+      sortDescending = !sortDescending;
+      document.getElementById('sortOrderLabel').textContent = sortDescending ? "Ordem: Crescente ↑" : "Ordem: Decrescente ↓";
+      sortCurrentDataset();
+      renderCurrentTab();
+    }
+
+    function getComparableDateValue(dStr, refStr) {
+      if (!dStr) return 0;
+      const [d, m] = dStr.split('/').map(Number);
+      const [refD, refM] = (refStr || getTodayFormatted()).split('/').map(Number);
+      let adjustedMonth = m;
+      if (refM >= 10 && m <= 3) adjustedMonth += 12;
+      else if (refM <= 3 && m >= 10) adjustedMonth -= 12;
+      return (adjustedMonth * 100) + d;
+    }
+
+    function calculateAndRenderKPIs(rowsList, activeDates, isCorte = false) {
+      const refDateStr = getTodayFormatted();
+      const todayNum = getComparableDateValue(refDateStr, refDateStr);
+
+      let totalGeral = 0;
+      let dentroPrazo = 0;
+      let volumeAtraso = 0;
+      const activeFutureDatesSet = new Set();
+
+      rowsList.forEach(row => {
+        const rowDates = Object.keys(row.dates || {});
+        rowDates.forEach(dk => {
+          if (activeDates && activeDates.length > 0 && !activeDates.includes(dk)) return;
+          const cell = row.dates[dk];
+          const val = isCorte ? (cell ? Number(cell.saldoCorte || 0) : 0) : Number(cell || 0);
+          if (val > 0) {
+            totalGeral += val;
+            const dNum = getComparableDateValue(dk, refDateStr);
+            if (dNum < todayNum) {
+              volumeAtraso += val;
+            } else {
+              dentroPrazo += val;
+              activeFutureDatesSet.add(dk);
+            }
+          }
+        });
+      });
+
+      const diasUteisFuturos = activeFutureDatesSet.size;
+      const mediaNoPrazo = diasUteisFuturos > 0 ? Math.round(dentroPrazo / diasUteisFuturos) : 0;
+      const mediaComAtraso = diasUteisFuturos > 0 ? Math.round(totalGeral / diasUteisFuturos) : totalGeral;
+
+      document.getElementById('kpiTotalGeral').textContent = totalGeral.toLocaleString('pt-BR');
+      document.getElementById('kpiDentroPrazo').textContent = dentroPrazo.toLocaleString('pt-BR');
+      document.getElementById('kpiVolumeAtraso').textContent = volumeAtraso.toLocaleString('pt-BR');
+      document.getElementById('kpiMediaProgramada').textContent = mediaNoPrazo.toLocaleString('pt-BR');
+      document.getElementById('kpiMediaComAtraso').textContent = mediaComAtraso.toLocaleString('pt-BR');
+      document.getElementById('kpiDiasProgramados').textContent = `Pares / Dia Útil Futuro (${diasUteisFuturos}d)`;
+    }
+
+    function renderCurrentTab() {
+      updateTopBarPeriodDisplay();
+
+      const kpiContainer = document.getElementById('kpiContainer');
+      if (kpiContainer) {
+        if (currentTab === 'retorno') {
+          kpiContainer.classList.add('hidden');
+        } else {
+          kpiContainer.classList.remove('hidden');
+        }
+      }
+
+      if (currentTab === 'apoio') renderTabApoio();
+      else if (currentTab === 'corte') renderTabCorte();
+      else if (currentTab === 'serigrafia') renderTabSerigrafia();
+      else if (currentTab === 'retorno') renderTabRetorno();
+    }
+
+    function renderTabApoio() {
+      document.getElementById('sectionFeedTitle').textContent = "Ordens Ativas (REP)";
+      document.getElementById('subFilterRetorno')?.classList.add('hidden');
+
+      const currentDates = tabDateFilters.apoio.sortedDates;
+      calculateAndRenderKPIs(dataApoio, currentDates, false);
+
+      const container = document.getElementById('cardsFeedContainer');
+      if (dataApoio.length === 0) {
+        container.innerHTML = `<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">Nenhum registro encontrado.</div>`;
+        return;
+      }
+
+      container.innerHTML = dataApoio.map(row => {
+        let chips = [];
+        let count = 0;
+        currentDates.forEach(dk => {
+          const v = row.dates[dk];
+          if (v && v > 0) {
+            count++;
+            chips.push(`
+              <button onclick="openDetailSidebar('${encodeURIComponent(row.apoio)}', '${encodeURIComponent(row.modelo)}', '${dk}')" class="flex-shrink-0 bg-slate-50 active:bg-blue-100 border border-slate-200 dark:bg-slate-950/80 dark:active:bg-blue-600/30 dark:border-slate-800 active:scale-95 transition rounded-xl px-3 py-1.5 text-center cursor-pointer min-w-[60px]">
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">${dk}</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel block">${v.toLocaleString('pt-BR')}</span>
+              </button>
+            `);
+          }
+        });
+
+        const soladoBadge = (row.sola && row.sola !== '---' && row.sola !== '')
+          ? `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/90 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">Solado: OK</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Sem Solado</span>`;
+
+        return `
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l-full"></div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div class="space-y-1">
+                <div class="flex items-center flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">APOIO ${row.apoio}</span>
+                  <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
+                </div>
+                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">
+  Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong> • 
+  Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong> • 
+  Supermercado: <strong class="text-amber-600 dark:text-amber-400">${row.supermercado.toLocaleString('pt-BR')}</strong>
+</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="flex items-baseline justify-end space-x-1">
+                  <span class="text-base font-black text-blue-600 dark:text-blue-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                </div>
+                <div class="mt-1">${soladoBadge}</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 py-2 px-1.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2 text-center">
+              <div>
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Serigrafia</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.serigrafia}</span>
+                <span class="text-[9px] text-slate-500 font-medium block">
+                  ${row.pintores} pint. • <strong class="text-purple-600 dark:text-purple-400">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</strong>
+                </span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
+                <span class="text-[9px] text-slate-500 font-medium block leading-tight">
+                  ${row.pessCos} pess. • <strong class="text-blue-600 dark:text-blue-400">Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</strong> • <strong class="text-emerald-600 dark:text-emerald-400">Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
+                </span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
+                <span class="text-[9px] text-slate-500 font-medium">Freq ${row.freq}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
+                <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
+                <span class="text-[9px] text-slate-500 font-medium">${row.pessMont} pess.</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10.5px] mb-1.5">
+              <span class="font-bold text-slate-700 dark:text-slate-300">Programação Diária:</span>
+              <span class="text-slate-500 font-medium">${count} dias</span>
+            </div>
+            <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
+              ${chips.join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTabCorte() {
+      document.getElementById('sectionFeedTitle').textContent = "Balanço de Corte Ativo";
+      document.getElementById('subFilterRetorno')?.classList.add('hidden');
+
+      const currentDates = tabDateFilters.corte.sortedDates;
+      calculateAndRenderKPIs(dataCorte, currentDates, true);
+
+      const container = document.getElementById('cardsFeedContainer');
+      if (dataCorte.length === 0) {
+        container.innerHTML = `<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">Nenhum registro de corte encontrado.</div>`;
+        return;
+      }
+
+      container.innerHTML = dataCorte.map(row => {
+        let chips = [];
+        currentDates.forEach(dk => {
+          const v = row.dates[dk];
+          if (v && v.total > 0) {
+            chips.push(`
+              <button onclick="openDetailSidebar('${encodeURIComponent(row.apoio)}', '${encodeURIComponent(row.modelo)}', '${dk}')" class="flex-shrink-0 bg-slate-50 active:bg-emerald-100 border border-slate-200 dark:bg-slate-950/80 dark:active:bg-emerald-950/40 dark:border-slate-800 active:scale-95 transition rounded-xl px-2.5 py-1.5 text-center cursor-pointer min-w-[68px]">
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">${dk}</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel block">${v.total.toLocaleString('pt-BR')}</span>
+                <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block">A:${v.auto}|M:${v.manual}</span>
+              </button>
+            `);
+          }
+        });
+
+        return `
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-l-full"></div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div class="space-y-1">
+                <div class="flex items-center flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">APOIO ${row.apoio}</span>
+                  <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">${row.status}</span>
+                </div>
+                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
+                <span class="text-[10.5px] text-slate-500 dark:text-slate-400">Serigrafia: <strong class="text-slate-800 dark:text-white">${row.serig}</strong></span>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="flex items-baseline justify-end space-x-1">
+                  <span class="text-base font-black text-emerald-600 dark:text-emerald-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                </div>
+                <div class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">Total a Cortar</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2.5 text-center">
+              <div class="bg-emerald-50 dark:bg-emerald-950/20 p-1.5 rounded-lg border border-emerald-200 dark:border-emerald-900/40">
+                <span class="text-[9px] font-bold uppercase text-emerald-700 dark:text-emerald-400 block">Corte Automático</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.totalAuto.toLocaleString('pt-BR')} prs</span>
+              </div>
+              <div class="bg-amber-50 dark:bg-amber-950/20 p-1.5 rounded-lg border border-amber-200 dark:border-amber-900/40">
+                <span class="text-[9px] font-bold uppercase text-amber-700 dark:text-amber-400 block">Corte Manual</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.totalManual.toLocaleString('pt-BR')} prs</span>
+              </div>
+            </div>
+
+            <div class="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Programação de Corte:</div>
+            <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
+              ${chips.join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTabSerigrafia() {
+      document.getElementById('sectionFeedTitle').textContent = "Linhas de Serigrafia";
+      document.getElementById('subFilterRetorno')?.classList.add('hidden');
+
+      const currentDates = tabDateFilters.serigrafia.sortedDates;
+      calculateAndRenderKPIs(dataSerigrafia, currentDates, false);
+
+      const container = document.getElementById('cardsFeedContainer');
+      if (dataSerigrafia.length === 0) {
+        container.innerHTML = `<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">Nenhum registro de serigrafia encontrado.</div>`;
+        return;
+      }
+
+      container.innerHTML = dataSerigrafia.map(row => {
+        let chips = [];
+        let count = 0;
+        currentDates.forEach(dk => {
+          const v = row.dates[dk];
+          if (v && v > 0) {
+            count++;
+            chips.push(`
+              <button onclick="openDetailSidebar('${encodeURIComponent(row.serigrafia)}', '${encodeURIComponent(row.modelo)}', '${dk}')" class="flex-shrink-0 bg-slate-50 active:bg-purple-100 border border-slate-200 dark:bg-slate-950/80 dark:active:bg-purple-950/40 dark:border-slate-800 active:scale-95 transition rounded-xl px-3 py-1.5 text-center cursor-pointer min-w-[60px]">
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">${dk}</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel block">${v.toLocaleString('pt-BR')}</span>
+              </button>
+            `);
+          }
+        });
+
+        return `
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-l-full"></div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div class="space-y-1">
+                <div class="flex items-center flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">SERIG ${row.serigrafia}</span>
+                  <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Apoio: <strong class="text-slate-900 dark:text-white">${row.apoio}</strong></span>
+                </div>
+                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
+                <div class="text-[10.5px] text-slate-500 dark:text-slate-400">Cor: <span class="text-slate-800 dark:text-slate-200 font-bold">${row.cor}</span></div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="flex items-baseline justify-end space-x-1">
+                  <span class="text-base font-black text-purple-600 dark:text-purple-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                </div>
+                <div class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">${row.pintores} Pintores</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 py-2 px-1.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2 text-center">
+              <div>
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Serigrafia</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.serigrafia}</span>
+                <span class="text-[9px] text-slate-500 font-medium block">
+                  ${row.pintores} pint. • <strong class="text-purple-600 dark:text-purple-400">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</strong>
+                </span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
+                <span class="text-[9px] text-slate-500 font-medium block leading-tight">
+                  ${row.pessCos} pess. • <strong class="text-blue-600 dark:text-blue-400">Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</strong> • <strong class="text-emerald-600 dark:text-emerald-400">Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
+                </span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
+                <span class="text-[9px] text-slate-500 font-medium">Freq ${row.freq}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
+                <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
+                <span class="text-[9px] text-slate-500 font-medium">${row.pessMont} pess.</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10.5px] mb-1.5">
+              <span class="font-bold text-slate-700 dark:text-slate-300">Datas Programadas:</span>
+              <span class="text-slate-500 font-medium">${count} dias</span>
+            </div>
+            <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
+              ${chips.join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTabRetorno() {
+      document.getElementById('sectionFeedTitle').textContent = "Retorno do Alinhamento";
+      document.getElementById('subFilterRetorno')?.classList.remove('hidden');
+
+      let filteredList = dataRetorno;
+      if (retornoFilterMode === 'ENF') {
+        filteredList = filteredList.filter(r => r.tipoOrigem === 'ENF');
+      } else if (retornoFilterMode === 'SERIG') {
+        filteredList = filteredList.filter(r => r.tipoOrigem === 'SERIG');
+      }
+
+      const currentDates = tabDateFilters.retorno.sortedDates;
+
+      const container = document.getElementById('cardsFeedContainer');
+      if (filteredList.length === 0) {
+        container.innerHTML = `<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">Nenhum retorno encontrado.</div>`;
+        return;
+      }
+
+      container.innerHTML = filteredList.map(row => {
+        let chips = [];
+        let count = 0;
+        currentDates.forEach(dk => {
+          const v = row.dates[dk];
+          if (v && v > 0) {
+            count++;
+            chips.push(`
+              <button onclick="openDetailSidebar('${encodeURIComponent(row.apoio)}', '${encodeURIComponent(row.modelo)}', '${dk}')" class="flex-shrink-0 bg-slate-50 active:bg-teal-100 border border-slate-200 dark:bg-slate-950/80 dark:active:bg-teal-600/30 dark:border-slate-800 active:scale-95 transition rounded-xl px-3 py-1.5 text-center cursor-pointer min-w-[60px]">
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">${dk}</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel block">${v.toLocaleString('pt-BR')}</span>
+              </button>
+            `);
+          }
+        });
+
+        const badgeTipo = (row.tipoOrigem === 'SERIG')
+          ? `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300 dark:border-purple-800">SERIG</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border border-teal-300 dark:border-teal-800">ENF</span>`;
+
+        const soladoBadge = (row.sola && row.sola !== '---' && row.sola !== '')
+          ? `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/90 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">Solado: OK</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Sem Solado</span>`;
+
+        return `
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 rounded-l-full"></div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div class="space-y-1">
+                <div class="flex items-center flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">APOIO ${row.apoio}</span>
+                  ${badgeTipo}
+                  <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
+                </div>
+                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong> • Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong></div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="flex items-baseline justify-end space-x-1">
+                  <span class="text-base font-black text-teal-600 dark:text-teal-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                </div>
+                <div class="mt-1">${soladoBadge}</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 py-2 px-1.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2 text-center">
+              <div>
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Serigrafia</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.serigrafia}</span>
+                <span class="text-[9px] text-slate-500 font-medium block">
+                  ${row.pintores} pint. • <strong class="text-purple-600 dark:text-purple-400">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</strong>
+                </span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
+                <span class="text-[9px] text-slate-500 font-medium block leading-tight">
+                  ${row.pessCos} pess. • <strong class="text-blue-600 dark:text-blue-400">Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</strong> • <strong class="text-emerald-600 dark:text-emerald-400">Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
+                </span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
+                <span class="text-[9px] text-slate-500 font-medium">Freq ${row.freq}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
+                <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
+                <span class="text-[9px] text-slate-500 font-medium">${row.pessMont} pess.</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10.5px] mb-1.5">
+              <span class="font-bold text-slate-700 dark:text-slate-300">Datas de Retorno:</span>
+              <span class="text-slate-500 font-medium">${count} dias</span>
+            </div>
+            <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
+              ${chips.join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setRetornoFilter(mode) {
+      retornoFilterMode = mode;
+      const bTodos = document.getElementById('subBtnRetornoTodos');
+      const bEnf = document.getElementById('subBtnRetornoEnf');
+      const bSerig = document.getElementById('subBtnRetornoSerig');
+      const actClass = "px-3 py-1 rounded-lg font-bold bg-teal-600 text-white cursor-pointer transition";
+      const inactClass = "px-3 py-1 rounded-lg font-semibold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-800 cursor-pointer transition";
+
+      if (bTodos) bTodos.className = (mode === 'todos') ? actClass : inactClass;
+      if (bEnf) bEnf.className = (mode === 'ENF') ? actClass : inactClass;
+      if (bSerig) bSerig.className = (mode === 'SERIG') ? actClass : inactClass;
+      renderTabRetorno();
+    }
+
+    function switchActiveTab(tabName) {
+      if (currentTab === tabName) return;
+      currentTab = tabName;
+
+      ['tabApoio', 'tabCorte', 'tabSerigrafia', 'tabRetorno'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = "px-3.5 py-1.5 rounded-full font-semibold bg-slate-200 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border border-slate-300 dark:border-slate-800 flex-shrink-0 cursor-pointer transition";
+      });
+
+      const activeEl = document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+      if (activeEl) {
+        activeEl.className = "px-3.5 py-1.5 rounded-full font-bold flex items-center space-x-1.5 bg-blue-600 text-white shadow-sm flex-shrink-0 cursor-pointer transition";
+      }
+
+      const logo = document.getElementById('badgeLogo');
+      if (tabName === 'corte') logo.className = "w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-emerald-600/30";
+      else if (tabName === 'serigrafia') logo.className = "w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-purple-600/30";
+      else if (tabName === 'retorno') logo.className = "w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-teal-600/30";
+      else logo.className = "w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-blue-600/30";
+
+      rebuildAllData();
+      renderCurrentTab();
+    }
+
+    function openDetailSidebar(encodedApoio, encodedModelo, dateKey) {
+      const apoio = decodeURIComponent(encodedApoio);
+      const modelo = decodeURIComponent(encodedModelo);
+      let targetRecords = [];
+
+      let currentSource = dataApoio;
+      if (currentTab === 'corte') currentSource = dataCorte;
+      else if (currentTab === 'serigrafia') currentSource = dataSerigrafia;
+      else if (currentTab === 'retorno') currentSource = dataRetorno;
+
+      const targetEntry = currentSource.find(r => (r.apoio === apoio || r.serigrafia === apoio) && r.modelo === modelo);
+      if (targetEntry && targetEntry.recordsByDate[dateKey]) {
+        targetRecords = targetEntry.recordsByDate[dateKey];
+      } else {
+        targetRecords = rawApiRecords.filter(item => {
+          let itemDate = extractItemDate(item, currentTab);
+          const itemMod = String(item.MODELO || item.NOME_PRODUTO || '').trim();
+          return itemDate === dateKey && itemMod === modelo;
+        });
+      }
+
+      document.getElementById('sbSubheader').textContent = `Data: ${dateKey} • Apoio: ${apoio}`;
+      document.getElementById('sbModelo').textContent = modelo;
+
+      let sumTotal = 0;
+      const listContainer = document.getElementById('sbOrdersList');
+      listContainer.innerHTML = '';
+
+      if (targetRecords.length === 0) {
+        listContainer.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Nenhuma ordem detalhada encontrada.</div>`;
+      } else {
+        targetRecords.forEach((item, index) => {
+          let qty = 0;
+          if (currentTab === 'corte') {
+            qty = parseNumericValue(item.CORTE_AUTO) + parseNumericValue(item.CORTE_MANUAL);
+          } else if (currentTab === 'serigrafia') {
+            qty = getSerigQty(item);
+          } else {
+            qty = getItemQty(item);
+          }
+          sumTotal += qty;
+
+          const ordem = item.ORDEM || item.ORDEM_PRODUCAO || item.NUM_ORDEM || item.OP || `OP-${index + 1}`;
+          const semana = item.SEMANA || item.SEM || '---';
+          const lote = item.LOTE || item.NUM_LOTE || '---';
+          const descricao = item.DESCRICAO || item.NOME_PRODUTO || modelo;
+          const cor = item.COR || item.DESC_COR || 'Não informada';
+          const embarque = item.DATA_EMBARQUE || item.EMBARQUE || '---';
+
+          const soladoRaw = item.SOLA || item.SOLADO || item.DESC_SOLA || '';
+          const temSolado = soladoRaw && String(soladoRaw).trim() !== '' && String(soladoRaw).trim() !== '---';
+          const soladoBadge = temSolado
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">Sim (${soladoRaw})</span>`
+            : `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">Não informado</span>`;
+
+          listContainer.insertAdjacentHTML('beforeend', `
+            <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center flex-wrap gap-1">
+                  <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:border dark:border-blue-800/60 font-mono text-[11px] font-bold dark:text-blue-300">OP: ${ordem}</span>
+                  <span class="text-[10px] text-slate-600 dark:text-slate-400 font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded">Sem: ${semana}</span>
+                  <span class="text-[10px] text-slate-600 dark:text-slate-400 font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded">Lote: ${lote}</span>
+                </div>
+                <span class="font-black text-slate-900 dark:text-white text-xs font-excel">${qty.toLocaleString('pt-BR')} prs</span>
+              </div>
+              <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                <div><span class="text-[10px] uppercase font-bold text-slate-400">Descrição:</span> ${descricao}</div>
+                <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                  <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Cor:</span> ${cor}</div>
+                  <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Embarque:</span> ${embarque}</div>
+                </div>
+                <div class="pt-1.5 flex items-center justify-between border-t border-slate-200 dark:border-slate-800/80 mt-1">
+                  <span class="text-[10px] uppercase font-bold text-slate-400">Solado:</span>
+                  ${soladoBadge}
+                </div>
+              </div>
+            </div>
+          `);
+        });
+      }
+
+      document.getElementById('sbTotalQtd').textContent = `${sumTotal.toLocaleString('pt-BR')} prs`;
+      const sidebar = document.getElementById('detailSidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      backdrop.classList.remove('hidden');
+      setTimeout(() => sidebar.classList.remove('translate-y-full'), 10);
+    }
+
+    function closeDetailSidebar() {
+      const sidebar = document.getElementById('detailSidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      sidebar.classList.add('translate-y-full');
+      setTimeout(() => backdrop.classList.add('hidden'), 300);
+    }
+
+    function onSearchInput(val) {
+      activeSearchQuery = val.trim();
+      rebuildAllData();
+      renderCurrentTab();
+    }
+
+    function openDateModal() {
+      const modal = document.getElementById('dateModal');
+      const title = document.getElementById('modalDateTitle');
+      const inputs = document.getElementById('modalDateInputs');
+      const currentTabDates = tabDateFilters[currentTab].allDates;
+
+      const tabNames = {apoio: 'Apoio Almox', corte: 'Visão Corte', serigrafia: 'Serigrafia', retorno: 'Retorno'};
+      title.textContent = `Filtrar Período (${tabNames[currentTab] || ''})`;
+      const curStart = tabDateFilters[currentTab].start;
+      const curEnd = tabDateFilters[currentTab].end;
+      inputs.innerHTML = `
+        <div>
+          <label class="text-slate-500 dark:text-slate-400 block mb-1">De:</label>
+          <select id="modalDateStart" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-2.5 font-bold text-slate-900 dark:text-white focus:outline-none">
+            <option value="">Início (${currentTabDates[0] || '---'})</option>
+            ${currentTabDates.map(d => `<option value="${d}" ${d === curStart ? 'selected' : ''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-slate-500 dark:text-slate-400 block mb-1">Até:</label>
+          <select id="modalDateEnd" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-2.5 font-bold text-slate-900 dark:text-white focus:outline-none">
+            <option value="">Fim (${currentTabDates[currentTabDates.length - 1] || '---'})</option>
+            ${currentTabDates.map(d => `<option value="${d}" ${d === curEnd ? 'selected' : ''}>${d}</option>`).join('')}
+          </select>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+    }
+
+    function closeDateModal() {
+      document.getElementById('dateModal').classList.add('hidden');
+    }
+
+    function applyDateFilter() {
+      const startEl = document.getElementById('modalDateStart');
+      const endEl = document.getElementById('modalDateEnd');
+      if (startEl) tabDateFilters[currentTab].start = startEl.value;
+      if (endEl) tabDateFilters[currentTab].end = endEl.value;
+      rebuildAllData();
+      renderCurrentTab();
+      closeDateModal();
+    }
+
+    function clearDateFilter() {
+      tabDateFilters[currentTab].start = "";
+      tabDateFilters[currentTab].end = "";
+      rebuildAllData();
+      renderCurrentTab();
+      closeDateModal();
+    }
+
+    function updateStatus(color, text) {
+      const icon = document.getElementById('statusWifiIcon');
+      const label = document.getElementById('statusText');
+      if (icon) {
+        icon.className = `w-3 h-3 transition-colors ${color === 'emerald' ? 'text-emerald-500' : (color === 'amber' ? 'text-amber-500' : 'text-rose-500')}`;
+      }
+      if (label) {
+        label.className = `text-[10.5px] font-bold ${color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' : (color === 'amber' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-500')}`;
+        label.textContent = text;
+      }
+    }
+
+    function buildConsolidatedTableHtml() {
+      const isCorte = (currentTab === 'corte');
+      const isSerig = (currentTab === 'serigrafia');
+      const isRetorno = (currentTab === 'retorno');
+
+      if (isCorte) {
+        const printDatesList = tabDateFilters.corte.sortedDates;
+        const groupsMap = new Map();
+        dataCorte.forEach(r => {
+          if (r.totalVolume <= 0) return;
+          if (!groupsMap.has(r.apoio)) groupsMap.set(r.apoio, []);
+          groupsMap.get(r.apoio).push(r);
+        });
+        const sortedApoioKeys = Array.from(groupsMap.keys()).sort(compareApoioKeys);
+
+        let headerRow1 = '<tr><th rowspan="2" style="text-align:left;">LINHA APOIO</th><th rowspan="2">LINHA SERIG</th><th rowspan="2" style="text-align:left;">Modelo</th><th colspan="2">MÉDIA (DIAS)</th>';
+        let headerRow2 = '<tr><th>CORTE AUTO</th><th>CORTE MANUAL</th>';
+
+        printDatesList.forEach(d => {
+          headerRow1 += `<th colspan="2">${d}</th>`;
+          headerRow2 += `<th>AUTO</th><th>MANUAL</th>`;
+        });
+        headerRow1 += '<th colspan="2">Total geral</th></tr>';
+        headerRow2 += '<th>AUTO</th><th>MANUAL</th></tr>';
+
+        let bodyRows = "";
+        const grandAutoDates = new Int32Array(printDatesList.length);
+        const grandManualDates = new Int32Array(printDatesList.length);
+        let grandAutoAll = 0;
+        let grandManualAll = 0;
+
+        sortedApoioKeys.forEach(apoioKey => {
+          const rows = groupsMap.get(apoioKey);
+          const groupAutoDates = new Int32Array(printDatesList.length);
+          const groupManualDates = new Int32Array(printDatesList.length);
+          let groupAutoSum = 0;
+          let groupManualSum = 0;
+
+          rows.forEach(r => {
+            let rowAutoSum = 0;
+            let rowManualSum = 0;
+            let daysAuto = 0;
+            let daysManual = 0;
+            let cellsHtml = "";
+
+            printDatesList.forEach((dk, i) => {
+              const v = r.dates[dk] || {auto: 0, manual: 0};
+              rowAutoSum += v.auto;
+              rowManualSum += v.manual;
+              if (v.auto > 0) daysAuto++;
+              if (v.manual > 0) daysManual++;
+              groupAutoDates[i] += v.auto;
+              groupManualDates[i] += v.manual;
+              grandAutoDates[i] += v.auto;
+              grandManualDates[i] += v.manual;
+              cellsHtml += `<td>${v.auto > 0 ? v.auto : ''}</td><td>${v.manual > 0 ? v.manual : ''}</td>`;
+            });
+
+            groupAutoSum += rowAutoSum;
+            groupManualSum += rowManualSum;
+            grandAutoAll += rowAutoSum;
+            grandManualAll += rowManualSum;
+
+            const avgAuto = daysAuto > 0 ? Math.round(rowAutoSum / daysAuto) : 0;
+            const avgManual = daysManual > 0 ? Math.round(rowManualSum / daysManual) : 0;
+
+            bodyRows += `
+              <tr>
+                <td style="text-align:left;">${apoioKey}</td>
+                <td>${r.serig}</td>
+                <td style="text-align:left; font-weight:bold;">${r.modelo}</td>
+                <td>${avgAuto > 0 ? avgAuto : ''}</td>
+                <td>${avgManual > 0 ? avgManual : ''}</td>
+                ${cellsHtml}
+                <td><strong>${rowAutoSum > 0 ? rowAutoSum : ''}</strong></td>
+                <td><strong>${rowManualSum > 0 ? rowManualSum : ''}</strong></td>
+              </tr>
+            `;
+          });
+
+          let subCells = "";
+          let subDaysAuto = 0;
+          let subDaysManual = 0;
+          printDatesList.forEach((_, i) => {
+            if (groupAutoDates[i] > 0) subDaysAuto++;
+            if (groupManualDates[i] > 0) subDaysManual++;
+            subCells += `<td>${groupAutoDates[i] > 0 ? groupAutoDates[i] : ''}</td><td>${groupManualDates[i] > 0 ? groupManualDates[i] : ''}</td>`;
+          });
+
+          const groupAvgAuto = subDaysAuto > 0 ? Math.round(groupAutoSum / subDaysAuto) : 0;
+          const groupAvgManual = subDaysManual > 0 ? Math.round(groupManualSum / subDaysManual) : 0;
+
+          bodyRows += `
+            <tr class="subtotal">
+              <td colspan="3" style="text-align:left;"><strong>${apoioKey} Total</strong></td>
+              <td>${groupAvgAuto > 0 ? groupAvgAuto : ''}</td>
+              <td>${groupAvgManual > 0 ? groupAvgManual : ''}</td>
+              ${subCells}
+              <td>${groupAutoSum > 0 ? groupAutoSum : ''}</td>
+              <td>${groupManualSum > 0 ? groupManualSum : ''}</td>
+            </tr>
+          `;
+        });
+
+        let grandCells = "";
+        let gDaysAuto = 0;
+        let gDaysManual = 0;
+        printDatesList.forEach((_, i) => {
+          if (grandAutoDates[i] > 0) gDaysAuto++;
+          if (grandManualDates[i] > 0) gDaysManual++;
+          grandCells += `<td>${grandAutoDates[i] > 0 ? grandAutoDates[i] : ''}</td><td>${grandManualDates[i] > 0 ? grandManualDates[i] : ''}</td>`;
+        });
+
+        const gAvgAuto = gDaysAuto > 0 ? Math.round(grandAutoAll / gDaysAuto) : 0;
+        const gAvgManual = gDaysManual > 0 ? Math.round(grandManualAll / gDaysManual) : 0;
+
+        return `
+          <table>
+            <thead>${headerRow1}${headerRow2}</thead>
+            <tbody>
+              ${bodyRows}
+              <tr class="grandtotal">
+                <td colspan="3" style="text-align:left;">TOTAL GERAL</td>
+                <td>${gAvgAuto > 0 ? gAvgAuto : ''}</td>
+                <td>${gAvgManual > 0 ? gAvgManual : ''}</td>
+                ${grandCells}
+                <td>${grandAutoAll}</td>
+                <td>${grandManualAll}</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      } else {
+        let firstColHeader = "APOIO";
+        let dataset = dataApoio;
+        let printDatesList = tabDateFilters.apoio.sortedDates;
+
+        if (isSerig) {
+          firstColHeader = "SERIGRAFIA";
+          dataset = dataSerigrafia;
+          printDatesList = tabDateFilters.serigrafia.sortedDates;
+        } else if (isRetorno) {
+          firstColHeader = "APOIO";
+          dataset = dataRetorno;
+          printDatesList = tabDateFilters.retorno.sortedDates;
+        }
+
+        const groupsMap = new Map();
+        dataset.forEach(r => {
+          if (r.totalVolume <= 0) return;
+          const gKey = isSerig ? r.serigrafia : r.apoio;
+          if (!groupsMap.has(gKey)) groupsMap.set(gKey, []);
+          groupsMap.get(gKey).push(r);
+        });
+        const sortedGroupKeys = Array.from(groupsMap.keys()).sort(compareApoioKeys);
+
+        let headersHtml = `
+          <tr>
+            <th style="text-align:left;">${firstColHeader}</th>
+            <th style="text-align:left;">MODELO</th>
+            <th>PESS. APOIO</th>
+            <th>FREQ</th>
+            <th>SERIGRAFIA</th>
+            <th>PINTORES</th>
+            <th>COSTURA</th>
+            <th>PESS_COS.</th>
+            <th>Máq. Prog</th>
+            <th>MONTAGEM</th>
+            <th>PESS_MONT.</th>
+            <th>SOLA</th>
+            <th style="text-align:left;">FAMÍLIA</th>
+            ${printDatesList.map(d => `<th>${d}</th>`).join('')}
+            <th>Total geral</th>
+          </tr>
+        `;
+
+        let bodyRows = "";
+        let grandTotal = 0;
+        const grandDateSums = new Int32Array(printDatesList.length);
+
+        sortedGroupKeys.forEach(gKey => {
+          const rows = groupsMap.get(gKey);
+          const groupDateSums = new Int32Array(printDatesList.length);
+          let groupTotal = 0;
+
+          rows.forEach(r => {
+            let rowSum = 0;
+            let dateCells = printDatesList.map((dk, i) => {
+              const val = r.dates[dk] || 0;
+              if (val > 0) {
+                rowSum += val;
+                groupDateSums[i] += val;
+                grandDateSums[i] += val;
+                return `<td>${val}</td>`;
+              }
+              return `<td></td>`;
+            }).join('');
+
+            groupTotal += rowSum;
+            grandTotal += rowSum;
+
+            bodyRows += `
+              <tr>
+                <td style="text-align:left;">${isSerig ? r.serigrafia : r.apoio}</td>
+                <td style="text-align:left; font-weight:bold;">${r.modelo}</td>
+                <td>${r.pessApoio || ''}</td>
+                <td>${r.freq || ''}</td>
+                <td>${r.serigrafia || ''}</td>
+                <td>${r.pintores || ''}</td>
+                <td>${r.costura || ''}</td>
+                <td>${r.pessCos || ''}</td>
+                <td>${r.maqProg || ''}</td>
+                <td>${r.montagem || ''}</td>
+                <td>${r.pessMont || ''}</td>
+                <td>${r.sola || ''}</td>
+                <td style="text-align:left;">${r.familia || ''}</td>
+                ${dateCells}
+                <td style="font-weight:bold;">${rowSum > 0 ? rowSum : ''}</td>
+              </tr>
+            `;
+          });
+
+          let subCells = printDatesList.map((_, i) => `<td>${groupDateSums[i] > 0 ? groupDateSums[i] : ''}</td>`).join('');
+          bodyRows += `
+            <tr class="subtotal">
+              <td colspan="13" style="text-align:left;"><strong>${gKey} Total</strong></td>
+              ${subCells}
+              <td><strong>${groupTotal > 0 ? groupTotal : ''}</strong></td>
+            </tr>
+          `;
+        });
+
+        let grandCells = printDatesList.map((_, i) => `<td>${grandDateSums[i] > 0 ? grandDateSums[i] : ''}</td>`).join('');
+        return `
+          <table>
+            <thead>${headersHtml}</thead>
+            <tbody>
+              ${bodyRows}
+              <tr class="grandtotal">
+                <td colspan="13" style="text-align:left;">TOTAL GERAL</td>
+                ${grandCells}
+                <td>${grandTotal}</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    function handlePrintDocument() {
+      let pageTitle = "MAPA DE PRODUÇÃO - APOIO ALMOX";
+      if (currentTab === 'corte') pageTitle = "MAPA DE PRODUÇÃO - VISÃO CORTE";
+      if (currentTab === 'serigrafia') pageTitle = "MAPA DE PRODUÇÃO - VISÃO SERIGRAFIA";
+      if (currentTab === 'retorno') pageTitle = "MAPA DE PRODUÇÃO - RETORNO DO ALINHAMENTO";
+
+      const tableContentHtml = buildConsolidatedTableHtml();
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        window.print();
+        return;
+      }
+
+      printWindow.document.open();
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>${pageTitle}</title>
+          <style>
+            @page { size: A4 landscape; margin: 4mm 3mm; }
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+              font-size: 7px;
+              margin: 0;
+              padding: 2px;
+              color: #000;
+              background: #fff;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            h2 { font-size: 10px; margin: 0 0 5px 0; text-transform: uppercase; font-weight: 800; }
+            table { width: 100%; border-collapse: collapse; font-family: "Courier New", Courier, monospace; }
+            th { background-color: #0f172a !important; color: #ffffff !important; padding: 2.5px 2px; border: 1px solid #334155; font-size: 6.5px; text-align: center; font-weight: bold; }
+            td { border: 1px solid #cbd5e1; padding: 2px 2px; text-align: center; font-size: 7px; white-space: nowrap; }
+            .subtotal td { background-color: #cbd5e1 !important; font-weight: bold !important; border-top: 1px solid #94a3b8; border-bottom: 1.5px solid #64748b; color: #000 !important; }
+            .grandtotal td { background-color: #94a3b8 !important; font-weight: 800 !important; color: #000 !important; border-top: 2px solid #475569; border-bottom: 2px solid #0f172a; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+          </style>
+        </head>
+        <body>
+          <h2>${pageTitle}</h2>
+          ${tableContentHtml}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        try {printWindow.print();} catch (e) { }
+      }, 350);
+    }
+
+    function exportToExcelStyled() {
+      const tableHtml = buildConsolidatedTableHtml();
+      const excelDocument = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+          <style>
+            body { font-family: Calibri, Arial, sans-serif; font-size: 10pt; }
+            table { border-collapse: collapse; }
+            th { background-color: #0f172a; color: #ffffff; font-weight: bold; border: 1px solid #334155; padding: 5px 8px; text-align: center; }
+            td { border: 1px solid #cbd5e1; padding: 4px 6px; font-size: 9.5pt; text-align: center; }
+            .subtotal td { background-color: #cbd5e1; font-weight: bold; color: #0f172a; }
+            .grandtotal td { background-color: #94a3b8; font-weight: bold; color: #020617; }
+          </style>
+        </head>
+        <body>${tableHtml}</body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff' + excelDocument], {type: 'application/vnd.ms-excel;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `controle_pcp_${currentTab}_${new Date().toISOString().slice(0, 10)}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+
+</html>
