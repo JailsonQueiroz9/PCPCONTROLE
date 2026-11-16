@@ -1151,6 +1151,7 @@
           serigGiro: giroByModelo.get(modUpper) || 0,
           kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
           kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+           supermercado: supermercadoByModelo.get(modUpper) || 0,
           totalVolume: 0,
           dates: Object.create(null),
           recordsByDate: Object.create(null)
@@ -1582,7 +1583,11 @@
                   <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
                 </div>
                 <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
-                <div class="text-[10px] text-slate-500 dark:text-slate-400">Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong> • Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong></div>
+               <div class="text-[10px] text-slate-500 dark:text-slate-400">
+  Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong> • 
+  Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong> • 
+  Supermercado: <strong class="text-amber-600 dark:text-amber-400">${row.supermercado.toLocaleString('pt-BR')}</strong>
+</div>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
