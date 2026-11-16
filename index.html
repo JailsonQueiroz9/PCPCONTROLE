@@ -2162,7 +2162,7 @@
       const a = document.createElement('a');
       a.href = url;
       a.download = `controle_pcp_${currentTab}_${new Date().toISOString().slice(0, 10)}.xls`;
-     document.body.appendChild(a);
+    document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     }
@@ -2172,7 +2172,6 @@
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
-    
   </script>
 </body>
 
