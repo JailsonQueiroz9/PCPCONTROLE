@@ -399,8 +399,7 @@
     <!-- TÍTULO DA LISTAGEM E ORDEM -->
     <div class="flex items-center justify-between text-xs pt-0.5 no-print">
       <span id="sectionFeedTitle"
-        class="text-[10.5px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ordens
-        Ativas</span>
+        class="text-[10.5px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sequenciamento na Programação</span>
       <button onclick="toggleSortOrder()" id="sortOrderLabel"
         class="text-blue-600 dark:text-blue-400 font-bold text-[11px] cursor-pointer">
         Ordem: Crescente ↑
@@ -1362,7 +1361,7 @@
     }
 
     function renderTabApoio() {
-      document.getElementById('sectionFeedTitle').textContent = "Ordens Ativas (REP)";
+      document.getElementById('sectionFeedTitle').textContent = "Sequenciamento na Programação ";
       document.getElementById('subFilterRetorno')?.classList.add('hidden');
 
       const currentDates = tabDateFilters.apoio.sortedDates;
