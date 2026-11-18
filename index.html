@@ -812,6 +812,23 @@
       return parseNumericValue(item["SUPERMERCADO"]);
     }
 
+    function getPessApoio(item) {
+      if (!item) return '0';
+      const directKeys = ['PESSOAS', 'PESS._APOIO', 'PESS_APOIO', 'PESS. APOIO', 'PESSAPOIO'];
+      for (const k of directKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          return String(item[k]).trim();
+        }
+      }
+      for (const key in item) {
+        const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+        if (norm === 'PESSOAS' || norm === 'PESSAPOIO') {
+          return String(item[key] || '').trim();
+        }
+      }
+      return '0';
+    }
+
 // Regra exata: Só retorna o valor de Qtd._Apoio se a coluna Almox tiver o resultado 0
     function getValorApoioComFallback(item) {
       if (!item) return 0;
@@ -1145,14 +1162,18 @@
             apoio.toLowerCase().includes(query) || cor.toLowerCase().includes(query);
           if (!match) continue;
         }
+        
+        const pessApoio = getPessApoio(item); // <-- Adicione esta linha
 
         const rowKey = `${serigrafia}|||${apoio}|||${modelo}`;
         let entry = mapSerig.get(rowKey);
         if (!entry) {
           const modUpper = modelo.toUpperCase();
           entry = {
-            serigrafia, apoio, modelo, pintores, cor,
+            serigrafia, apoio, modelo, pessApoio, pintores, cor, // <-- Inclua pessApoio aqui
             costura, pessCos, maqProg, freq, montagem, pessMont,
+            sola: String(item.SOLA || '').trim(), // <-- Aproveite para garantir SOLA e FAMÍLIA na impressão
+            familia: String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim(),
             serigGiro: giroByModelo.get(modUpper) || 0,
             kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
             kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
@@ -1390,7 +1411,7 @@
                   <span>•</span>
                   <span>Supermercado: <strong class="text-amber-600 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</strong></span>
                   <span>•</span>
-                  <span>QTD.Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
+                  <span>Giro Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
                 </div>
               </div>
               <div class="text-right flex-shrink-0">
@@ -1660,7 +1681,7 @@
                   <span>•</span>
                   <span>Supermercado: <strong class="text-amber-600 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</strong></span>
                   <span>•</span>
-                  <span>QTD.Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
+                  <span>Giro Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
                 </div>
               </div>
               <div class="text-right flex-shrink-0">
