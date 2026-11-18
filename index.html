@@ -75,13 +75,8 @@
     }
 
     @keyframes spinGear {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .animate-spin-custom {
@@ -485,10 +480,10 @@
     let retornoFilterMode = 'todos';
 
     const tabDateFilters = {
-      apoio: {start: '', end: '', allDates: [], sortedDates: []},
-      corte: {start: '', end: '', allDates: [], sortedDates: []},
-      serigrafia: {start: '', end: '', allDates: [], sortedDates: []},
-      retorno: {start: '', end: '', allDates: [], sortedDates: []}
+      apoio: { start: '', end: '', allDates: [], sortedDates: [] },
+      corte: { start: '', end: '', allDates: [], sortedDates: [] },
+      serigrafia: { start: '', end: '', allDates: [], sortedDates: [] },
+      retorno: { start: '', end: '', allDates: [], sortedDates: [] }
     };
 
     let dataApoio = [];
@@ -538,7 +533,7 @@
       try {
         const response = await fetch(API_URL, {
           method: 'GET',
-          headers: {'Accept': 'application/json'}
+          headers: { 'Accept': 'application/json' }
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
@@ -725,7 +720,7 @@
       if (numA !== numB) {
         return sortDescending ? (numA - numB) : (numB - numA);
       }
-      return String(a || '').localeCompare(String(b || ''), undefined, {numeric: true});
+      return String(a || '').localeCompare(String(b || ''), undefined, { numeric: true });
     }
 
     function getMaqProg(item) {
@@ -817,6 +812,59 @@
       return parseNumericValue(item["SUPERMERCADO"]);
     }
 
+// Regra exata: Só retorna o valor de Qtd._Apoio se a coluna Almox tiver o resultado 0
+    function getValorApoioComFallback(item) {
+      if (!item) return 0;
+
+      // 1. Localiza a coluna ALMOX e verifica se o seu valor é 0
+      const almoxKeys = ['ALMOX', 'Almox', 'QTD_ALMOX', 'QTD._ALMOX', 'QTD. ALMOX'];
+      let almoxEncontrado = false;
+      let valAlmox = 0;
+
+      for (const k of almoxKeys) {
+        if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+          almoxEncontrado = true;
+          valAlmox = parseNumericValue(item[k]);
+          break;
+        }
+      }
+
+      // Varredura por aproximação caso a chave tenha variação de acento ou espaço
+      if (!almoxEncontrado) {
+        for (const key in item) {
+          const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+          if (norm === 'ALMOX' || norm === 'QTDALMOX') {
+            almoxEncontrado = true;
+            valAlmox = parseNumericValue(item[key]);
+            break;
+          }
+        }
+      }
+
+      // 2. Condição principal: Se Almox for 0 (ou vazio), busca e retorna Qtd._Apoio
+      if (valAlmox === 0) {
+        const apoioKeys = ['QTD._APOIO', 'Qtd._Apoio', 'QTD_APOIO', 'QTD. APOIO', 'Qtd_Apoio'];
+        for (const k of apoioKeys) {
+          if (item[k] !== undefined && item[k] !== null && String(item[k]).trim() !== '') {
+            const parsed = parseNumericValue(item[k]);
+            if (parsed > 0) return parsed;
+          }
+        }
+        
+        // Varredura por aproximação para Qtd._Apoio
+        for (const key in item) {
+          const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
+          if (norm === 'QTDAPOIO') {
+            const parsed = parseNumericValue(item[key]);
+            if (parsed > 0) return parsed;
+          }
+        }
+      }
+
+      // 3. Caso Almox seja maior que 0, o Giro de Apoio para esta linha retorna 0
+      return 0;
+    }
+
     function isValidCorteRecord(item) {
       if (!item) return false;
       const cAuto = parseNumericValue(item.CORTE_AUTO);
@@ -846,21 +894,24 @@
     function rebuildAllData() {
       const query = activeSearchQuery.toLowerCase();
 
-      // Soma global de Serig_Giro e Kanbans por MODELO (ignora datas, saldos programados e linha de apoio)
       const giroByModelo = new Map();
       const giroOpsPorModelo = new Set();
       const kanbanProgByModelo = new Map();
       const kanbanCostByModelo = new Map();
       const supermercadoByModelo = new Map();
+      const supOpsPorModelo = new Set();
+      const giroApoioByModelo = new Map();
+      const giroApoioOpsPorModelo = new Set();
 
       for (let i = 0; i < rawApiRecords.length; i++) {
         const item = rawApiRecords[i];
         const modKey = String(item.MODELO || item.NOME_PRODUTO || '').trim().toUpperCase();
         if (!modKey) continue;
 
+        const opId = String(item.ORDEM || item.ORDEM_PRODUCAO || item.NUM_ORDEM || item.OP || '').trim();
+
         const giroVal = getSerigGiro(item);
         if (giroVal > 0) {
-          const opId = String(item.ORDEM || item.ORDEM_PRODUCAO || item.NUM_ORDEM || item.OP || '').trim();
           const uniqueKey = opId ? `${modKey}|||${opId}|||${giroVal}` : `${modKey}|||ROW_${i}`;
           if (!giroOpsPorModelo.has(uniqueKey)) {
             giroOpsPorModelo.add(uniqueKey);
@@ -880,294 +931,308 @@
 
         const supVal = getSupermercado(item);
         if (supVal > 0) {
-          supermercadoByModelo.set(modKey, (supermercadoByModelo.get(modKey) || 0) + supVal);
+          const uniqueSupKey = opId ? `${modKey}|||${opId}|||${supVal}` : `${modKey}|||SUP_${i}`;
+          if (!supOpsPorModelo.has(uniqueSupKey)) {
+            supOpsPorModelo.add(uniqueSupKey);
+            supermercadoByModelo.set(modKey, (supermercadoByModelo.get(modKey) || 0) + supVal);
+          }
+        }
+        
+        const giroAVal = getValorApoioComFallback(item);
+        if (giroAVal > 0) {
+          const uniqueGiroAKey = opId ? `${modKey}|||${opId}|||${giroAVal}` : `${modKey}|||GA_${i}`;
+          if (!giroApoioOpsPorModelo.has(uniqueGiroAKey)) {
+            giroApoioOpsPorModelo.add(uniqueGiroAKey);
+            giroApoioByModelo.set(modKey, (giroApoioByModelo.get(modKey) || 0) + giroAVal);
+          }
         }
       }
-    
 
-    ['apoio', 'corte', 'serigrafia', 'retorno'].forEach(tab => {
-      const dSet = new Set();
-      for (let i = 0, len = rawApiRecords.length; i < len; i++) {
+      ['apoio', 'corte', 'serigrafia', 'retorno'].forEach(tab => {
+        const dSet = new Set();
+        for (let i = 0, len = rawApiRecords.length; i < len; i++) {
+          const item = rawApiRecords[i];
+          if (tab === 'corte' && !isValidCorteRecord(item)) continue;
+          if (tab === 'serigrafia') {
+            const serig = String(item.LINHA_SERIGRAFIA_ALMOX || '').trim().toUpperCase();
+            if (!serig || serig === 'N. SERIG' || serig === 'N.SERIG' || serig === 'SEM SERIGRAFIA' || serig === 'SEM SERIG' || serig === '---') continue;
+            if (getSerigQty(item) <= 0) continue;
+          }
+          const dk = extractItemDate(item, tab);
+          if (dk) dSet.add(dk);
+        }
+        const sorted = Array.from(dSet).sort((a, b) => {
+          const pA = a.split('/');
+          const pB = b.split('/');
+          return (Number(pA[1]) - Number(pB[1])) || (Number(pA[0]) - Number(pB[0]));
+        });
+        tabDateFilters[tab].allDates = sorted;
+
+        if (tabDateFilters[tab].start && !sorted.includes(tabDateFilters[tab].start)) tabDateFilters[tab].start = "";
+        if (tabDateFilters[tab].end && !sorted.includes(tabDateFilters[tab].end)) tabDateFilters[tab].end = "";
+
+        const nStart = tabDateFilters[tab].start ? parseDateToNumber(tabDateFilters[tab].start) : 0;
+        const nEnd = tabDateFilters[tab].end ? parseDateToNumber(tabDateFilters[tab].end) : 999999;
+
+        let validSubset = sorted.filter(d => {
+          const num = parseDateToNumber(d);
+          return num >= nStart && num <= nEnd;
+        });
+        if (validSubset.length === 0 && sorted.length > 0) {
+          validSubset = [...sorted];
+          tabDateFilters[tab].start = "";
+          tabDateFilters[tab].end = "";
+        }
+        tabDateFilters[tab].sortedDates = validSubset;
+      });
+
+      updateTopBarPeriodDisplay();
+
+      // 1. APOIO ALMOX
+      const apoioStart = tabDateFilters.apoio.start ? parseDateToNumber(tabDateFilters.apoio.start) : 0;
+      const apoioEnd = tabDateFilters.apoio.end ? parseDateToNumber(tabDateFilters.apoio.end) : 999999;
+      const mapApoio = new Map();
+
+      for (let i = 0; i < rawApiRecords.length; i++) {
         const item = rawApiRecords[i];
-        if (tab === 'corte' && !isValidCorteRecord(item)) continue;
-        if (tab === 'serigrafia') {
-          const serig = String(item.LINHA_SERIGRAFIA_ALMOX || '').trim().toUpperCase();
-          if (!serig || serig === 'N. SERIG' || serig === 'N.SERIG' || serig === 'SEM SERIGRAFIA' || serig === 'SEM SERIG' || serig === '---') continue;
-          if (getSerigQty(item) <= 0) continue;
+        const dateKey = extractItemDate(item, 'apoio');
+        const qty = getItemQty(item);
+        if (!dateKey || qty <= 0) continue;
+        const dNum = parseDateToNumber(dateKey);
+        if (dNum < apoioStart || dNum > apoioEnd) continue;
+
+        const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
+        const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+        const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
+        const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
+        const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
+        const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
+        const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
+        const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
+        const maqProg = getMaqProg(item);
+        const montagem = String(item.LINHA_MONTAGEM || '---').trim();
+        const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
+        const sola = String(item.SOLA || '').trim();
+        const familia = String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim();
+
+        if (query) {
+          const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+            serigrafia.toLowerCase().includes(query) || costura.toLowerCase().includes(query) ||
+            familia.toLowerCase().includes(query);
+          if (!match) continue;
         }
-        const dk = extractItemDate(item, tab);
-        if (dk) dSet.add(dk);
+
+        const rowKey = `${apoio}|||${modelo}`;
+        let entry = mapApoio.get(rowKey);
+        if (!entry) {
+          const modUpper = modelo.toUpperCase();
+          entry = {
+            apoio, modelo, pessApoio, freq, serigrafia, pintores,
+            costura, pessCos, maqProg, montagem, pessMont, sola, familia,
+            serigGiro: giroByModelo.get(modUpper) || 0,
+            kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
+            kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+            supermercado: supermercadoByModelo.get(modUpper) || 0,
+            giroApoio: giroApoioByModelo.get(modUpper) || 0,
+            totalVolume: 0,
+            dates: Object.create(null),
+            recordsByDate: Object.create(null)
+          };
+          mapApoio.set(rowKey, entry);
+        }
+        entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
+        entry.totalVolume += qty;
+
+        if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+        entry.recordsByDate[dateKey].push(item);
       }
-      const sorted = Array.from(dSet).sort((a, b) => {
-        const pA = a.split('/');
-        const pB = b.split('/');
-        return (Number(pA[1]) - Number(pB[1])) || (Number(pA[0]) - Number(pB[0]));
-      });
-      tabDateFilters[tab].allDates = sorted;
+      dataApoio = Array.from(mapApoio.values());
 
-      if (tabDateFilters[tab].start && !sorted.includes(tabDateFilters[tab].start)) tabDateFilters[tab].start = "";
-      if (tabDateFilters[tab].end && !sorted.includes(tabDateFilters[tab].end)) tabDateFilters[tab].end = "";
+      // 2. CORTE
+      const corteStart = tabDateFilters.corte.start ? parseDateToNumber(tabDateFilters.corte.start) : 0;
+      const corteEnd = tabDateFilters.corte.end ? parseDateToNumber(tabDateFilters.corte.end) : 999999;
+      const mapCorte = new Map();
 
-      const nStart = tabDateFilters[tab].start ? parseDateToNumber(tabDateFilters[tab].start) : 0;
-      const nEnd = tabDateFilters[tab].end ? parseDateToNumber(tabDateFilters[tab].end) : 999999;
+      for (let i = 0; i < rawApiRecords.length; i++) {
+        const item = rawApiRecords[i];
+        if (!isValidCorteRecord(item)) continue;
+        const dateKey = extractItemDate(item, 'corte');
+        if (!dateKey) continue;
 
-      let validSubset = sorted.filter(d => {
-        const num = parseDateToNumber(d);
-        return num >= nStart && num <= nEnd;
-      });
-      if (validSubset.length === 0 && sorted.length > 0) {
-        validSubset = [...sorted];
-        tabDateFilters[tab].start = "";
-        tabDateFilters[tab].end = "";
+        const dNum = parseDateToNumber(dateKey);
+        if (dNum < corteStart || dNum > corteEnd) continue;
+
+        const rawApoio = getLinhaApoioAlmox(item);
+        if (!rawApoio || rawApoio === '---' || rawApoio.toUpperCase() === 'N/A') continue;
+
+        const cAuto = parseNumericValue(item.CORTE_AUTO);
+        const cManual = parseNumericValue(item.CORTE_MANUAL);
+        const totalCorte = cAuto + cManual;
+        const saldoCorte = getSaldoCorte(item);
+
+        const apoio = rawApoio;
+        const serig = String(item.LINHA_SERIGRAFIA_ALMOX || 'SEM SERIG').trim();
+        const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+        const status = String(item.STATUS_CORTE || item.STATUS_DA_OPERAÇÃO || 'EM GIRO').trim();
+
+        if (query) {
+          const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+            serig.toLowerCase().includes(query) || status.toLowerCase().includes(query);
+          if (!match) continue;
+        }
+
+        const rowKey = `${apoio}|||${serig}|||${modelo}`;
+        let entry = mapCorte.get(rowKey);
+        if (!entry) {
+          entry = {
+            apoio, serig, modelo, status,
+            totalAuto: 0, totalManual: 0, totalVolume: 0, totalSaldoCorte: 0,
+            dates: Object.create(null),
+            recordsByDate: Object.create(null)
+          };
+          mapCorte.set(rowKey, entry);
+        }
+        if (!entry.dates[dateKey]) entry.dates[dateKey] = { auto: 0, manual: 0, total: 0, saldoCorte: 0 };
+        entry.dates[dateKey].auto += cAuto;
+        entry.dates[dateKey].manual += cManual;
+        entry.dates[dateKey].total += totalCorte;
+        entry.dates[dateKey].saldoCorte += saldoCorte;
+
+        entry.totalAuto += cAuto;
+        entry.totalManual += cManual;
+        entry.totalVolume += totalCorte;
+        entry.totalSaldoCorte += saldoCorte;
+
+        if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+        entry.recordsByDate[dateKey].push(item);
       }
-      tabDateFilters[tab].sortedDates = validSubset;
-    });
+      dataCorte = Array.from(mapCorte.values());
 
-    updateTopBarPeriodDisplay();
+      // 3. SERIGRAFIA
+      const serigStart = tabDateFilters.serigrafia.start ? parseDateToNumber(tabDateFilters.serigrafia.start) : 0;
+      const serigEnd = tabDateFilters.serigrafia.end ? parseDateToNumber(tabDateFilters.serigrafia.end) : 999999;
+      const mapSerig = new Map();
 
-    // 1. APOIO ALMOX
-    const apoioStart = tabDateFilters.apoio.start ? parseDateToNumber(tabDateFilters.apoio.start) : 0;
-    const apoioEnd = tabDateFilters.apoio.end ? parseDateToNumber(tabDateFilters.apoio.end) : 999999;
-    const mapApoio = new Map();
+      for (let i = 0; i < rawApiRecords.length; i++) {
+        const item = rawApiRecords[i];
+        const dateKey = extractItemDate(item, 'serigrafia');
+        const qty = getSerigQty(item);
+        if (!dateKey || qty <= 0) continue;
 
-    for (let i = 0; i < rawApiRecords.length; i++) {
-      const item = rawApiRecords[i];
-      const dateKey = extractItemDate(item, 'apoio');
-      const qty = getItemQty(item);
-      if (!dateKey || qty <= 0) continue;
-      const dNum = parseDateToNumber(dateKey);
-      if (dNum < apoioStart || dNum > apoioEnd) continue;
+        const dNum = parseDateToNumber(dateKey);
+        if (dNum < serigStart || dNum > serigEnd) continue;
 
-      const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
-      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
-      const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
-      const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
-      const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
-      const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
-      const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
-      const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
-      const maqProg = getMaqProg(item);
-      const montagem = String(item.LINHA_MONTAGEM || '---').trim();
-      const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
-      const sola = String(item.SOLA || '').trim();
-      const familia = String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim();
+        const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '').trim();
+        const serigNorm = serigrafia.toUpperCase();
 
-      if (query) {
-        const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
-          serigrafia.toLowerCase().includes(query) || costura.toLowerCase().includes(query) ||
-          familia.toLowerCase().includes(query);
-        if (!match) continue;
+        if (!serigrafia || serigNorm === 'N. SERIG' || serigNorm === 'N.SERIG' || serigNorm === 'SEM SERIGRAFIA' || serigNorm === 'SEM SERIG' || serigNorm === '---') {
+          continue;
+        }
+
+        const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
+        const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+        const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
+        const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
+        const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
+        const maqProg = getMaqProg(item);
+        const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
+        const montagem = String(item.LINHA_MONTAGEM || '---').trim();
+        const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
+        const cor = item.COR || item.DESC_COR || 'Cor padrão';
+
+        if (query) {
+          const match = serigrafia.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+            apoio.toLowerCase().includes(query) || cor.toLowerCase().includes(query);
+          if (!match) continue;
+        }
+
+        const rowKey = `${serigrafia}|||${apoio}|||${modelo}`;
+        let entry = mapSerig.get(rowKey);
+        if (!entry) {
+          const modUpper = modelo.toUpperCase();
+          entry = {
+            serigrafia, apoio, modelo, pintores, cor,
+            costura, pessCos, maqProg, freq, montagem, pessMont,
+            serigGiro: giroByModelo.get(modUpper) || 0,
+            kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
+            kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+            totalVolume: 0,
+            dates: Object.create(null),
+            recordsByDate: Object.create(null)
+          };
+          mapSerig.set(rowKey, entry);
+        }
+        entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
+        entry.totalVolume += qty;
+
+        if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+        entry.recordsByDate[dateKey].push(item);
       }
+      dataSerigrafia = Array.from(mapSerig.values());
 
-      const rowKey = `${apoio}|||${modelo}`;
-      let entry = mapApoio.get(rowKey);
-      if (!entry) {
-        const modUpper = modelo.toUpperCase();
-        entry = {
-          apoio, modelo, pessApoio, freq, serigrafia, pintores,
-          costura, pessCos, maqProg, montagem, pessMont, sola, familia,
-          serigGiro: giroByModelo.get(modUpper) || 0,
-          kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
-          kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
-          supermercado: supermercadoByModelo.get(modUpper) || 0, // <-- Adicione esta linha
-          totalVolume: 0,
-          dates: Object.create(null),
-          recordsByDate: Object.create(null)
-        };
-        mapApoio.set(rowKey, entry);
+      // 4. RETORNO
+      const retStart = tabDateFilters.retorno.start ? parseDateToNumber(tabDateFilters.retorno.start) : 0;
+      const retEnd = tabDateFilters.retorno.end ? parseDateToNumber(tabDateFilters.retorno.end) : 999999;
+      const mapRetorno = new Map();
+
+      for (let i = 0; i < rawApiRecords.length; i++) {
+        const item = rawApiRecords[i];
+        const dateKey = extractItemDate(item, 'retorno');
+        const qty = getItemQty(item);
+        if (!dateKey || qty <= 0) continue;
+        const dNum = parseDateToNumber(dateKey);
+        if (dNum < retStart || dNum > retEnd) continue;
+
+        const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
+        const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
+        const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
+        const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
+        const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
+        const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
+        const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
+        const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
+        const maqProg = getMaqProg(item);
+        const montagem = String(item.LINHA_MONTAGEM || '---').trim();
+        const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
+        const sola = String(item.SOLA || '').trim();
+        const familia = String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim();
+        const tipoOrigem = getTipoRetorno(item);
+
+        if (query) {
+          const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
+            serigrafia.toLowerCase().includes(query) || costura.toLowerCase().includes(query) ||
+            familia.toLowerCase().includes(query) || tipoOrigem.toLowerCase().includes(query);
+          if (!match) continue;
+        }
+
+        const rowKey = `${apoio}|||${modelo}|||${tipoOrigem}`;
+        let entry = mapRetorno.get(rowKey);
+        if (!entry) {
+          const modUpper = modelo.toUpperCase();
+          entry = {
+            apoio, modelo, pessApoio, freq, serigrafia, pintores,
+            costura, pessCos, maqProg, montagem, pessMont, sola, familia,
+            tipoOrigem,
+            serigGiro: giroByModelo.get(modUpper) || 0,
+            kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
+            kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+            supermercado: supermercadoByModelo.get(modUpper) || 0,
+            giroApoio: giroApoioByModelo.get(modUpper) || 0,
+            totalVolume: 0,
+            dates: Object.create(null),
+            recordsByDate: Object.create(null)
+          };
+          mapRetorno.set(rowKey, entry);
+        }
+        entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
+        entry.totalVolume += qty;
+
+        if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
+        entry.recordsByDate[dateKey].push(item);
       }
-      entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
-      entry.totalVolume += qty;
+      dataRetorno = Array.from(mapRetorno.values());
 
-      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
-      entry.recordsByDate[dateKey].push(item);
-    }
-    dataApoio = Array.from(mapApoio.values());
-
-    // 2. CORTE
-    const corteStart = tabDateFilters.corte.start ? parseDateToNumber(tabDateFilters.corte.start) : 0;
-    const corteEnd = tabDateFilters.corte.end ? parseDateToNumber(tabDateFilters.corte.end) : 999999;
-    const mapCorte = new Map();
-
-    for (let i = 0; i < rawApiRecords.length; i++) {
-      const item = rawApiRecords[i];
-      if (!isValidCorteRecord(item)) continue;
-      const dateKey = extractItemDate(item, 'corte');
-      if (!dateKey) continue;
-
-      const dNum = parseDateToNumber(dateKey);
-      if (dNum < corteStart || dNum > corteEnd) continue;
-
-      const rawApoio = getLinhaApoioAlmox(item);
-      if (!rawApoio || rawApoio === '---' || rawApoio.toUpperCase() === 'N/A') continue;
-
-      const cAuto = parseNumericValue(item.CORTE_AUTO);
-      const cManual = parseNumericValue(item.CORTE_MANUAL);
-      const totalCorte = cAuto + cManual;
-      const saldoCorte = getSaldoCorte(item);
-
-      const apoio = rawApoio;
-      const serig = String(item.LINHA_SERIGRAFIA_ALMOX || 'SEM SERIG').trim();
-      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
-      const status = String(item.STATUS_CORTE || item.STATUS_DA_OPERAÇÃO || 'EM GIRO').trim();
-
-      if (query) {
-        const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
-          serig.toLowerCase().includes(query) || status.toLowerCase().includes(query);
-        if (!match) continue;
-      }
-
-      const rowKey = `${apoio}|||${serig}|||${modelo}`;
-      let entry = mapCorte.get(rowKey);
-      if (!entry) {
-        entry = {
-          apoio, serig, modelo, status,
-          totalAuto: 0, totalManual: 0, totalVolume: 0, totalSaldoCorte: 0,
-          dates: Object.create(null),
-          recordsByDate: Object.create(null)
-        };
-        mapCorte.set(rowKey, entry);
-      }
-      if (!entry.dates[dateKey]) entry.dates[dateKey] = {auto: 0, manual: 0, total: 0, saldoCorte: 0};
-      entry.dates[dateKey].auto += cAuto;
-      entry.dates[dateKey].manual += cManual;
-      entry.dates[dateKey].total += totalCorte;
-      entry.dates[dateKey].saldoCorte += saldoCorte;
-
-      entry.totalAuto += cAuto;
-      entry.totalManual += cManual;
-      entry.totalVolume += totalCorte;
-      entry.totalSaldoCorte += saldoCorte;
-
-      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
-      entry.recordsByDate[dateKey].push(item);
-    }
-    dataCorte = Array.from(mapCorte.values());
-
-    // 3. SERIGRAFIA
-    const serigStart = tabDateFilters.serigrafia.start ? parseDateToNumber(tabDateFilters.serigrafia.start) : 0;
-    const serigEnd = tabDateFilters.serigrafia.end ? parseDateToNumber(tabDateFilters.serigrafia.end) : 999999;
-    const mapSerig = new Map();
-
-    for (let i = 0; i < rawApiRecords.length; i++) {
-      const item = rawApiRecords[i];
-      const dateKey = extractItemDate(item, 'serigrafia');
-      const qty = getSerigQty(item);
-      if (!dateKey || qty <= 0) continue;
-
-      const dNum = parseDateToNumber(dateKey);
-      if (dNum < serigStart || dNum > serigEnd) continue;
-
-      const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '').trim();
-      const serigNorm = serigrafia.toUpperCase();
-
-      if (!serigrafia || serigNorm === 'N. SERIG' || serigNorm === 'N.SERIG' || serigNorm === 'SEM SERIGRAFIA' || serigNorm === 'SEM SERIG' || serigNorm === '---') {
-        continue;
-      }
-
-      const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
-      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
-      const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
-      const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
-      const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
-      const maqProg = getMaqProg(item);
-      const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
-      const montagem = String(item.LINHA_MONTAGEM || '---').trim();
-      const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
-      const cor = item.COR || item.DESC_COR || 'Cor padrão';
-
-      if (query) {
-        const match = serigrafia.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
-          apoio.toLowerCase().includes(query) || cor.toLowerCase().includes(query);
-        if (!match) continue;
-      }
-
-      const rowKey = `${serigrafia}|||${apoio}|||${modelo}`;
-      let entry = mapSerig.get(rowKey);
-      if (!entry) {
-        const modUpper = modelo.toUpperCase();
-        entry = {
-          serigrafia, apoio, modelo, pintores, cor,
-          costura, pessCos, maqProg, freq, montagem, pessMont,
-          serigGiro: giroByModelo.get(modUpper) || 0,
-          kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
-          kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
-          totalVolume: 0,
-          dates: Object.create(null),
-          recordsByDate: Object.create(null)
-        };
-        mapSerig.set(rowKey, entry);
-      }
-      entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
-      entry.totalVolume += qty;
-
-      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
-      entry.recordsByDate[dateKey].push(item);
-    }
-    dataSerigrafia = Array.from(mapSerig.values());
-
-    // 4. RETORNO
-    const retStart = tabDateFilters.retorno.start ? parseDateToNumber(tabDateFilters.retorno.start) : 0;
-    const retEnd = tabDateFilters.retorno.end ? parseDateToNumber(tabDateFilters.retorno.end) : 999999;
-    const mapRetorno = new Map();
-
-    for (let i = 0; i < rawApiRecords.length; i++) {
-      const item = rawApiRecords[i];
-      const dateKey = extractItemDate(item, 'retorno');
-      const qty = getItemQty(item);
-      if (!dateKey || qty <= 0) continue;
-      const dNum = parseDateToNumber(dateKey);
-      if (dNum < retStart || dNum > retEnd) continue;
-
-      const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
-      const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
-      const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
-      const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
-      const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
-      const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
-      const costura = String(item.LINHA_COSTURA_ || item.LINHA_COSTURA || '---').trim();
-      const pessCos = item['PESS_COS.'] !== undefined && item['PESS_COS.'] !== null ? String(item['PESS_COS.']) : '0';
-      const maqProg = getMaqProg(item);
-      const montagem = String(item.LINHA_MONTAGEM || '---').trim();
-      const pessMont = item['PESS_MONT.'] !== undefined && item['PESS_MONT.'] !== null ? String(item['PESS_MONT.']) : '0';
-      const sola = String(item.SOLA || '').trim();
-      const familia = String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim();
-      const tipoOrigem = getTipoRetorno(item);
-
-      if (query) {
-        const match = apoio.toLowerCase().includes(query) || modelo.toLowerCase().includes(query) ||
-          serigrafia.toLowerCase().includes(query) || costura.toLowerCase().includes(query) ||
-          familia.toLowerCase().includes(query) || tipoOrigem.toLowerCase().includes(query);
-        if (!match) continue;
-      }
-
-      const rowKey = `${apoio}|||${modelo}|||${tipoOrigem}`;
-      let entry = mapRetorno.get(rowKey);
-      if (!entry) {
-        const modUpper = modelo.toUpperCase();
-        entry = {
-          apoio, modelo, pessApoio, freq, serigrafia, pintores,
-          costura, pessCos, maqProg, montagem, pessMont, sola, familia,
-          tipoOrigem,
-          serigGiro: giroByModelo.get(modUpper) || 0,
-          kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
-          kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
-           supermercado: supermercadoByModelo.get(modUpper) || 0,
-          totalVolume: 0,
-          dates: Object.create(null),
-          recordsByDate: Object.create(null)
-        };
-        mapRetorno.set(rowKey, entry);
-      }
-      entry.dates[dateKey] = (entry.dates[dateKey] || 0) + qty;
-      entry.totalVolume += qty;
-
-      if (!entry.recordsByDate[dateKey]) entry.recordsByDate[dateKey] = [];
-      entry.recordsByDate[dateKey].push(item);
-    }
-    dataRetorno = Array.from(mapRetorno.values());
-
-    sortCurrentDataset();
+      sortCurrentDataset();
     }
 
     function updateTopBarPeriodDisplay() {
@@ -1318,11 +1383,15 @@
                   <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
                 </div>
                 <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
-                <div class="text-[10px] text-slate-500 dark:text-slate-400">
-  Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong> • 
-  Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong> • 
-  Supermercado: <strong class="text-amber-600 dark:text-amber-400">${row.supermercado.toLocaleString('pt-BR')}</strong>
-</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                  <span>Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong></span>
+                  <span>•</span>
+                  <span>Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong></span>
+                  <span>•</span>
+                  <span>Supermercado: <strong class="text-amber-600 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</strong></span>
+                  <span>•</span>
+                  <span>Giro Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
+                </div>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
@@ -1345,14 +1414,14 @@
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
                 <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
                 <span class="text-[9px] text-slate-500 font-medium block leading-tight">
-                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
+                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Kanban Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
                 </span>
               </div>
-<div class="border-l border-slate-200 dark:border-slate-800">
-  <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
-  <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
-  <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
-</div>
+              <div class="border-l border-slate-200 dark:border-slate-800">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
+                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
+                <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Kanban Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              </div>
               <div class="border-l border-slate-200 dark:border-slate-800">
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
                 <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
@@ -1503,13 +1572,13 @@
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
                 <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
                 <span class="text-[9px] text-slate-500 font-medium block leading-tight">
-                  ${row.pessCos} pess. • <strong class="text-blue-600 dark:text-blue-400">Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</strong> • <strong class="text-emerald-600 dark:text-emerald-400">Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
+                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Kanban Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
                 </span>
               </div>
               <div class="border-l border-slate-200 dark:border-slate-800">
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
                 <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
-                <span class="text-[9px] text-slate-500 font-medium">Freq ${row.freq}</span>
+                <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Kanban Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
               </div>
               <div class="border-l border-slate-200 dark:border-slate-800">
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
@@ -1584,11 +1653,15 @@
                   <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
                 </div>
                 <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
-               <div class="text-[10px] text-slate-500 dark:text-slate-400">
-  Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong> • 
-  Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong> • 
-  Supermercado: <strong class="text-amber-600 dark:text-amber-400">${row.supermercado.toLocaleString('pt-BR')}</strong>
-</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                  <span>Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong></span>
+                  <span>•</span>
+                  <span>Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong></span>
+                  <span>•</span>
+                  <span>Supermercado: <strong class="text-amber-600 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</strong></span>
+                  <span>•</span>
+                  <span>Giro Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
+                </div>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
@@ -1611,13 +1684,13 @@
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
                 <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
                 <span class="text-[9px] text-slate-500 font-medium block leading-tight">
-                  ${row.pessCos} pess. • <strong class="text-blue-600 dark:text-blue-400">Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</strong> • <strong class="text-emerald-600 dark:text-emerald-400">Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
+                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Kanban Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
                 </span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800">
+             <div class="border-l border-slate-200 dark:border-slate-800">
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
                 <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
-                <span class="text-[9px] text-slate-500 font-medium">Freq ${row.freq}</span>
+                <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Kanban Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
               </div>
               <div class="border-l border-slate-200 dark:border-slate-800">
                 <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
@@ -1783,7 +1856,7 @@
       const inputs = document.getElementById('modalDateInputs');
       const currentTabDates = tabDateFilters[currentTab].allDates;
 
-      const tabNames = {apoio: 'Apoio Almox', corte: 'Visão Corte', serigrafia: 'Serigrafia', retorno: 'Retorno'};
+      const tabNames = { apo: 'Apoio Almox', corte: 'Visão Corte', serigrafia: 'Serigrafia', retorno: 'Retorno' };
       title.textContent = `Filtrar Período (${tabNames[currentTab] || ''})`;
       const curStart = tabDateFilters[currentTab].start;
       const curEnd = tabDateFilters[currentTab].end;
@@ -1886,7 +1959,7 @@
             let cellsHtml = "";
 
             printDatesList.forEach((dk, i) => {
-              const v = r.dates[dk] || {auto: 0, manual: 0};
+              const v = r.dates[dk] || { auto: 0, manual: 0 };
               rowAutoSum += v.auto;
               rowManualSum += v.manual;
               if (v.auto > 0) daysAuto++;
@@ -2140,7 +2213,7 @@
       printWindow.document.close();
       printWindow.focus();
       setTimeout(() => {
-        try {printWindow.print();} catch (e) { }
+        try { printWindow.print(); } catch (e) { }
       }, 350);
     }
 
@@ -2163,19 +2236,19 @@
         </html>
       `;
 
-      const blob = new Blob(['\ufeff' + excelDocument], {type: 'application/vnd.ms-excel;charset=utf-8'});
+      const blob = new Blob(['\ufeff' + excelDocument], { type: 'application/vnd.ms-excel;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `controle_pcp_${currentTab}_${new Date().toISOString().slice(0, 10)}.xls`;
-    document.body.appendChild(a);
+      document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+        navigator.serviceWorker.register('./sw.js').catch(() => { });
       });
     }
   </script>
