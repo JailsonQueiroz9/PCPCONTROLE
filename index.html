@@ -122,66 +122,92 @@
   <header
     class="bg-white/95 border-slate-200 dark:bg-slate-950/95 dark:border-slate-800/80 backdrop-blur-md px-3.5 pt-2.5 pb-2 border-b sticky top-0 z-40 flex-none space-y-2.5 no-print">
     <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2.5">
         <div id="badgeLogo"
-          class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-blue-600/30">
+          class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-xs tracking-wider shadow-md shadow-blue-600/30 flex-shrink-0">
           PCP
         </div>
         <div>
-          <h1 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">Controle</h1>
-          <div class="flex items-center space-x-1 mt-1">
-            <svg id="statusWifiIcon" class="w-3 h-3 text-emerald-500 transition-colors" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-              <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-              <line x1="12" y1="20" x2="12.01" y2="20"></line>
-            </svg>
-            <span id="statusText" class="text-[10.5px] font-bold text-emerald-600 dark:text-emerald-400">Online</span>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">Controle</h1>
+            <span id="statusBadge"
+              class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-400 dark:border-emerald-800/80 transition-colors">
+              <span id="statusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span id="statusText">On</span>
+            </span>
           </div>
+          <span class="text-[10.5px] font-medium text-slate-500 dark:text-slate-400 block mt-0.5">PLANO DE CORTE - ITB</span>
         </div>
       </div>
 
-      <div class="flex items-center space-x-1.5">
-        <button onclick="toggleThemeMode()" title="Alternar Tema"
-          class="p-2 rounded-lg bg-slate-200/80 active:bg-slate-300 dark:bg-slate-900 dark:active:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-800 transition cursor-pointer">
-          <svg id="themeIconSun" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-            </path>
-          </svg>
-          <svg id="themeIconMoon" class="w-4 h-4 block dark:hidden text-indigo-600" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.03 9.03 0 008.354-5.646z"></path>
-          </svg>
-        </button>
+<div class="flex items-center space-x-1.5 relative">
+        <!-- Botão Atualizar -->
         <button onclick="fetchApiData(true)" title="Atualizar"
-          class="p-2 rounded-lg bg-slate-200/80 active:bg-slate-300 dark:bg-slate-900 dark:active:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-800 transition cursor-pointer">
+          class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 active:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 transition cursor-pointer shadow-2xs">
           <svg id="refreshIconSvg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
             </path>
           </svg>
         </button>
-        <button onclick="handlePrintDocument()" title="Imprimir"
-          class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-indigo-50 active:bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-slate-900 dark:active:bg-slate-800 dark:border-slate-700 dark:text-blue-400 text-xs font-bold flex items-center space-x-1 transition cursor-pointer">
-          <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-            </path>
-          </svg>
-          <span class="hidden sm:inline">Imprimir</span>
-        </button>
-        <button onclick="exportToExcelStyled()" title="Exportar Excel"
-          class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-emerald-600 active:bg-emerald-700 text-white dark:bg-emerald-950/80 dark:active:bg-emerald-900 dark:border dark:border-emerald-700/60 dark:text-emerald-300 text-xs font-bold flex items-center space-x-1 transition cursor-pointer">
-          <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
-          <span class="hidden sm:inline">Excel</span>
-        </button>
+
+        <!-- Botão Ações (Dropdown) -->
+        <div class="relative" id="actionsDropdownContainer">
+          <button onclick="toggleActionsMenu(event)" id="btnAcoes" title="Mais Ações"
+            class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 active:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 text-xs font-bold flex items-center space-x-1.5 transition cursor-pointer shadow-2xs">
+            <svg class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="5" r="1.75"></circle>
+              <circle cx="12" cy="12" r="1.75"></circle>
+              <circle cx="12" cy="19" r="1.75"></circle>
+            </svg>
+            <span>Ações</span>
+          </button>
+
+          <!-- Menu Suspenso -->
+          <div id="actionsMenu"
+            class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-1.5 z-50 text-xs origin-top-right transition-all">
+            
+            <!-- Opção: Alternar Tema -->
+            <button onclick="toggleThemeMode(); closeActionsMenu();"
+              class="w-full px-3.5 py-2.5 text-left flex items-center space-x-2.5 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-200 font-semibold transition cursor-pointer">
+              <svg class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                </path>
+              </svg>
+              <svg class="w-4 h-4 block dark:hidden text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.03 9.03 0 008.354-5.646z"></path>
+              </svg>
+              <span class="dark:hidden">Modo Escuro</span>
+              <span class="hidden dark:inline">Modo Claro</span>
+            </button>
+
+            <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+
+            <!-- Opção: Imprimir -->
+            <button onclick="handlePrintDocument(); closeActionsMenu();"
+              class="w-full px-3.5 py-2.5 text-left flex items-center space-x-2.5 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-indigo-600 dark:text-blue-400 font-bold transition cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                </path>
+              </svg>
+              <span>Imprimir Mapa</span>
+            </button>
+
+            <!-- Opção: Exportar Excel -->
+            <button onclick="exportToExcelStyled(); closeActionsMenu();"
+              class="w-full px-3.5 py-2.5 text-left flex items-center space-x-2.5 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-emerald-600 dark:text-emerald-400 font-bold transition cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              <span>Exportar Excel</span>
+            </button>
+
+          </div>
+        </div>
       </div>
     </div>
 
@@ -210,7 +236,7 @@
       <button id="tabApoio" onclick="switchActiveTab('apoio')"
         class="px-3.5 py-1.5 rounded-full font-bold flex items-center space-x-1.5 bg-blue-600 text-white shadow-sm flex-shrink-0 cursor-pointer transition">
         <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-        <span>Apoio Almox</span>
+        <span>Visão Apoio</span>
       </button>
       <button id="tabCorte" onclick="switchActiveTab('corte')"
         class="px-3.5 py-1.5 rounded-full font-semibold bg-slate-200 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border border-slate-300 dark:border-slate-800 flex-shrink-0 cursor-pointer transition">
@@ -230,135 +256,114 @@
   <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
   <main class="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5" id="mainContainer">
 
-    <!-- CARDS DE METAS -->
-    <div id="kpiContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 no-print">
-      <!-- 1. Volume Total Programado -->
-      <div
-        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
-        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-blue-500 rounded-r-full"></div>
-        <div class="flex items-center justify-between gap-2">
+    <!-- NOVO LAYOUT DE CARDS DE METAS (KPIs) -->
+    <div id="kpiContainer" class="space-y-3 no-print">
+      <!-- 1. HERO CARD AZUL (Volume Total Programado) -->
+      <div class="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-4 text-white shadow-lg shadow-blue-900/20 relative overflow-hidden">
+        <div class="flex items-start justify-between">
           <div>
-            <span
-              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Volume
-              Total Programado</span>
-            <span id="kpiTotalGeral"
-              class="text-xl font-black text-slate-900 dark:text-white font-excel mt-0.5 block">0</span>
-            <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
-              <span>Acumulado do Período</span>
-            </span>
+            <div class="flex items-center space-x-2">
+              <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-blue-100">Volume Total Programado</span>
+              <span class="px-2 py-0.5 rounded-full bg-white/15 text-white text-[9.5px] font-bold backdrop-blur-xs">Acumulado</span>
+            </div>
+            <div class="flex items-baseline space-x-1.5 mt-2">
+              <span id="kpiTotalGeral" class="text-3xl sm:text-4xl font-black tracking-tight font-excel">0</span>
+              <span class="text-xs font-bold text-blue-200 uppercase">Pares</span>
+            </div>
           </div>
-          <div
-            class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
               </path>
             </svg>
           </div>
         </div>
+
+        <div class="mt-3.5 pt-3 border-t border-white/15 flex items-center justify-between text-xs">
+          <div class="flex items-center space-x-1.5 text-blue-100">
+            <svg class="w-4 h-4 text-amber-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6" stroke-width="2"></line>
+              <line x1="8" y1="2" x2="8" y2="6" stroke-width="2"></line>
+              <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"></line>
+            </svg>
+            <span>Dentro do Prazo: <strong id="kpiDentroPrazo" class="text-white font-excel">0</strong></span>
+          </div>
+          <span id="kpiPrazoPercentBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold shadow-xs">
+            ✓ 100% no prazo
+          </span>
+        </div>
       </div>
 
-      <!-- 2. Dentro do Prazo -->
-      <div
-        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
-        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-amber-500 rounded-r-full"></div>
-        <div class="flex items-center justify-between gap-2">
+      <!-- 2. GRID 2 COLUNAS (Volume em Atraso + Média Diária) -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <!-- Volume em Atraso -->
+        <div class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
           <div>
-            <span
-              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Dentro
-              do Prazo</span>
-            <span id="kpiDentroPrazo"
-              class="text-xl font-black text-amber-700 dark:text-amber-400 font-excel mt-0.5 block">0</span>
-            <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400/90 mt-1 flex items-center gap-1">
-              <span>✓ Data Hoje para Frente</span>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Volume em Atraso</span>
+              <div id="kpiAtrasoIconBox" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+              </div>
+            </div>
+            <span id="kpiVolumeAtraso" class="text-2xl font-black text-slate-900 dark:text-white font-excel mt-1.5 block">0</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><polyline points="12 6 12 12 16 14" stroke-width="2"></polyline></svg>
+              <span>Datas anteriores a hoje</span>
             </span>
           </div>
-          <div
-            class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
+          <div class="mt-3">
+            <span id="kpiAtrasoStatusPill" class="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60 text-[10px] font-bold">
+              Sem atrasos críticos
+            </span>
+          </div>
+        </div>
+
+        <!-- Média Diária -->
+        <div class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Média Diária</span>
+              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+              </div>
+            </div>
+            <span id="kpiMediaProgramada" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-excel mt-1.5 block">0</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">
+              <strong class="text-slate-700 dark:text-slate-300">Pares</strong>/ dia útil futuro
+            </span>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px]">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Saldo Útil:</span>
+            <span id="kpiDiasProgramados" class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 font-extrabold font-excel">0 dias</span>
           </div>
         </div>
       </div>
 
-      <!-- 3. Volume em Atraso -->
-      <div
-        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
-        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-rose-500 rounded-r-full"></div>
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <span
-              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Volume
-              em Atraso</span>
-            <span id="kpiVolumeAtraso"
-              class="text-xl font-black text-rose-600 dark:text-rose-400 font-excel mt-0.5 block">0</span>
-            <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400/90 mt-1 flex items-center gap-1">
-              <span>↺ Datas Anteriores a Hoje</span>
-            </span>
-          </div>
-          <div
-            class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
+      <!-- 3. BARRA COMPACTA (Média Verificada c/ Atraso) -->
+      <div class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl px-3.5 py-2.5 flex items-center justify-between shadow-xs">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
             </svg>
           </div>
-        </div>
-      </div>
-
-      <!-- 4. Média Diária no Prazo -->
-      <div
-        class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
-        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-emerald-500 rounded-r-full"></div>
-        <div class="flex items-center justify-between gap-2">
           <div>
-            <span
-              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Média
-              Diária no Prazo</span>
-            <span id="kpiMediaProgramada"
-              class="text-xl font-black text-emerald-600 dark:text-emerald-400 font-excel mt-0.5 block">0</span>
-            <span id="kpiDiasProgramados"
-              class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400/90 mt-1 block">
-              Pares / Dia Útil Futuro
-            </span>
-          </div>
-          <div
-            class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-              </path>
-            </svg>
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">Média Verificada c/ Atraso</span>
+            <div class="flex items-baseline space-x-1">
+              <span id="kpiMediaComAtraso" class="text-base font-black text-purple-600 dark:text-purple-400 font-excel">0</span>
+              <span class="text-[10.5px] font-medium text-slate-500 dark:text-slate-400">pares/dia</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- 5. Média Verificada com Atraso -->
-      <div
-        class="col-span-2 sm:col-span-1 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800/90 border rounded-2xl p-3 relative overflow-hidden shadow-xs">
-        <div class="absolute left-0 top-2.5 bottom-2.5 w-1 bg-purple-500 rounded-r-full"></div>
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <span
-              class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Média
-              Verificada c/ Atraso</span>
-            <span id="kpiMediaComAtraso"
-              class="text-xl font-black text-purple-600 dark:text-purple-400 font-excel mt-0.5 block">0</span>
-            <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400/90 mt-1 block">
-              ⚖ Total / Dias Úteis Prazo
-            </span>
-          </div>
-          <div
-            class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
-            </svg>
-          </div>
-        </div>
+        <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold">
+          Total ÷ Dias Úteis
+        </span>
       </div>
     </div>
 
@@ -407,7 +412,7 @@
     </div>
 
     <!-- FEED DINÂMICO DE CARDS -->
-    <div id="cardsFeedContainer" class="space-y-3 pb-16"></div>
+    <div id="cardsFeedContainer" class="space-y-3.5 pb-16"></div>
   </main>
 
   <!-- MODAL DE DATAS -->
@@ -510,13 +515,33 @@
       }
     }
 
+    function toggleActionsMenu(event) {
+      if (event) event.stopPropagation();
+      const menu = document.getElementById('actionsMenu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function closeActionsMenu() {
+      const menu = document.getElementById('actionsMenu');
+      if (menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('actionsDropdownContainer');
+      if (container && !container.contains(e.target)) {
+        closeActionsMenu();
+      }
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
       initTheme();
       const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
         try {
           rawApiRecords = JSON.parse(cached);
-          updateStatus('emerald', 'Online');
+          updateStatus('emerald', 'On');
           rebuildAllData();
           renderCurrentTab();
         } catch (e) { }
@@ -527,7 +552,7 @@
     async function fetchApiData(forceRefresh = false) {
       const refreshIcon = document.getElementById('refreshIconSvg');
       if (refreshIcon) refreshIcon.classList.add('animate-spin-custom');
-      updateStatus('amber', 'Sincronizando...');
+      updateStatus('amber', 'Carregando Dados...');
 
       try {
         const response = await fetch(API_URL, {
@@ -540,10 +565,10 @@
         if (Array.isArray(data) && data.length > 0) {
           rawApiRecords = data;
           sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-          updateStatus('emerald', 'Online');
+          updateStatus('emerald', 'On');
         }
       } catch (err) {
-        updateStatus(rawApiRecords.length > 0 ? 'emerald' : 'red', rawApiRecords.length > 0 ? 'Online' : 'Offline');
+        updateStatus(rawApiRecords.length > 0 ? 'emerald' : 'red', rawApiRecords.length > 0 ? 'On' : 'Offline');
       } finally {
         if (refreshIcon) refreshIcon.classList.remove('animate-spin-custom');
         rebuildAllData();
@@ -828,11 +853,9 @@
       return '0';
     }
 
-// Regra exata: Só retorna o valor de Qtd._Apoio se a coluna Almox tiver o resultado 0
     function getValorApoioComFallback(item) {
       if (!item) return 0;
 
-      // 1. Localiza a coluna ALMOX e verifica se o seu valor é 0
       const almoxKeys = ['ALMOX', 'Almox', 'QTD_ALMOX', 'QTD._ALMOX', 'QTD. ALMOX'];
       let almoxEncontrado = false;
       let valAlmox = 0;
@@ -845,7 +868,6 @@
         }
       }
 
-      // Varredura por aproximação caso a chave tenha variação de acento ou espaço
       if (!almoxEncontrado) {
         for (const key in item) {
           const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
@@ -857,7 +879,6 @@
         }
       }
 
-      // 2. Condição principal: Se Almox for 0 (ou vazio), busca e retorna Qtd._Apoio
       if (valAlmox === 0) {
         const apoioKeys = ['QTD._APOIO', 'Qtd._Apoio', 'QTD_APOIO', 'QTD. APOIO', 'Qtd_Apoio'];
         for (const k of apoioKeys) {
@@ -867,7 +888,6 @@
           }
         }
         
-        // Varredura por aproximação para Qtd._Apoio
         for (const key in item) {
           const norm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[\s_\.]/g, '');
           if (norm === 'QTDAPOIO') {
@@ -877,7 +897,6 @@
         }
       }
 
-      // 3. Caso Almox seja maior que 0, o Giro de Apoio para esta linha retorna 0
       return 0;
     }
 
@@ -1019,7 +1038,7 @@
 
         const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
         const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
-        const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
+        const pessApoio = getPessApoio(item);
         const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
         const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
         const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
@@ -1162,20 +1181,22 @@
           if (!match) continue;
         }
         
-        const pessApoio = getPessApoio(item); // <-- Adicione esta linha
+        const pessApoio = getPessApoio(item);
 
         const rowKey = `${serigrafia}|||${apoio}|||${modelo}`;
         let entry = mapSerig.get(rowKey);
         if (!entry) {
           const modUpper = modelo.toUpperCase();
           entry = {
-            serigrafia, apoio, modelo, pessApoio, pintores, cor, // <-- Inclua pessApoio aqui
+            serigrafia, apoio, modelo, pessApoio, pintores, cor,
             costura, pessCos, maqProg, freq, montagem, pessMont,
-            sola: String(item.SOLA || '').trim(), // <-- Aproveite para garantir SOLA e FAMÍLIA na impressão
+            sola: String(item.SOLA || '').trim(),
             familia: String(item['FAMÍLIA_'] || item.FAMILIA || 'ENSACADO').trim(),
             serigGiro: giroByModelo.get(modUpper) || 0,
             kanbanProg: kanbanProgByModelo.get(modUpper) || 0,
             kanbanCost: kanbanCostByModelo.get(modUpper) || 0,
+            supermercado: supermercadoByModelo.get(modUpper) || 0,
+            giroApoio: giroApoioByModelo.get(modUpper) || 0,
             totalVolume: 0,
             dates: Object.create(null),
             recordsByDate: Object.create(null)
@@ -1205,7 +1226,7 @@
 
         const apoio = getLinhaApoioAlmox(item) || 'SEM ALMOX';
         const modelo = String(item.MODELO || item.NOME_PRODUTO || '---').trim();
-        const pessApoio = item.PESSOAS !== undefined && item.PESSOAS !== null ? String(item.PESSOAS) : '0';
+        const pessApoio = getPessApoio(item);
         const freq = item.FREQ !== undefined && item.FREQ !== null ? String(item.FREQ) : '0';
         const serigrafia = String(item.LINHA_SERIGRAFIA_ALMOX || '---').trim();
         const pintores = item.PINTORES_FINAL || item.PINTORES || '0';
@@ -1339,7 +1360,29 @@
       document.getElementById('kpiVolumeAtraso').textContent = volumeAtraso.toLocaleString('pt-BR');
       document.getElementById('kpiMediaProgramada').textContent = mediaNoPrazo.toLocaleString('pt-BR');
       document.getElementById('kpiMediaComAtraso').textContent = mediaComAtraso.toLocaleString('pt-BR');
-      document.getElementById('kpiDiasProgramados').textContent = `Pares / Dia Útil Futuro (${diasUteisFuturos}d)`;
+      document.getElementById('kpiDiasProgramados').textContent = `${diasUteisFuturos} dias`;
+
+      // Atualiza pílula de percentual no prazo
+      const percBadge = document.getElementById('kpiPrazoPercentBadge');
+      if (percBadge) {
+        const perc = totalGeral > 0 ? Math.round((dentroPrazo / totalGeral) * 100) : 100;
+        percBadge.textContent = `✓ ${perc}% no prazo`;
+      }
+
+      // Atualiza status visual do card de atraso
+      const atrasoPill = document.getElementById('kpiAtrasoStatusPill');
+      const atrasoIcon = document.getElementById('kpiAtrasoIconBox');
+      if (atrasoPill && atrasoIcon) {
+        if (volumeAtraso > 0) {
+          atrasoPill.className = "inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60 text-[10px] font-bold";
+          atrasoPill.textContent = "Atenção: Atrasos ativos";
+          atrasoIcon.className = "w-7 h-7 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center flex-shrink-0";
+        } else {
+          atrasoPill.className = "inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60 text-[10px] font-bold";
+          atrasoPill.textContent = "Sem atrasos críticos";
+          atrasoIcon.className = "w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center flex-shrink-0";
+        }
+      }
     }
 
     function renderCurrentTab() {
@@ -1361,7 +1404,7 @@
     }
 
     function renderTabApoio() {
-      document.getElementById('sectionFeedTitle').textContent = "Sequenciamento na Programação ";
+      document.getElementById('sectionFeedTitle').textContent = "Sequenciamento na Programação";
       document.getElementById('subFilterRetorno')?.classList.add('hidden');
 
       const currentDates = tabDateFilters.apoio.sortedDates;
@@ -1390,69 +1433,93 @@
         });
 
         const soladoBadge = (row.sola && row.sola !== '---' && row.sola !== '')
-          ? `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/90 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">Solado: OK</span>`
-          : `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Sem Solado</span>`;
+          ? `<span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/90 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Solado: OK</span></span>`
+          : `<span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Sem Solado</span>`;
 
         return `
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l-full"></div>
-            <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-4 relative overflow-hidden shadow-xs">
+            <!-- Barra Superior Azul -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-blue-600"></div>
+
+            <!-- Cabeçalho do Card -->
+            <div class="flex items-start justify-between gap-2 mb-3 pt-0.5">
               <div class="space-y-1">
-                <div class="flex items-center flex-wrap gap-1.5">
-                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">APOIO ${row.apoio}</span>
-                  <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
+                <div class="flex items-center flex-wrap gap-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[10.5px] font-black bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 tracking-wide">APOIO ${row.apoio}</span>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-800 dark:text-white">${row.familia}</strong></span>
                 </div>
-                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
-                <div class="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  <span>Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong></span>
-                  <span>•</span>
-                  <span>Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong></span>
-                  <span>•</span>
-                  <span>Supermercado: <strong class="text-amber-600 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</strong></span>
-                  <span>•</span>
-                  <span>QTD.Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
-                </div>
+                <h2 class="text-[15px] font-black text-slate-900 dark:text-white tracking-tight leading-snug pt-0.5">${row.modelo}</h2>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
-                  <span class="text-base font-black text-blue-600 dark:text-blue-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
-                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                  <span class="text-xl font-black text-blue-600 dark:text-blue-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10.5px] font-bold text-slate-400">prs</span>
                 </div>
                 <div class="mt-1">${soladoBadge}</div>
               </div>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 py-2 px-1.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2 text-center">
-              <div>
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Serigrafia</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.serigrafia}</span>
-                <span class="text-[9px] text-slate-500 font-medium block">
-                  ${row.pintores} pint. • <strong class="text-purple-600 dark:text-purple-400">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</strong>
-                </span>
+            <!-- Grade 2x2 de Indicadores do Apoio -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Pess. Apoio</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.pessApoio}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
-                <span class="text-[9px] text-slate-500 font-medium block leading-tight">
-                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Kanban Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
-                </span>
+              <div class="bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Freq</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.freq}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
-                <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Kanban Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/50 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">Supermercado</span>
+                <span class="text-xs font-black text-amber-700 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
-                <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
-                <span class="text-[9px] text-slate-500 font-medium">${row.pessMont} pess.</span>
+              <div class="bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-indigo-800 dark:text-indigo-300">Qtd. Apoio</span>
+                <span class="text-xs font-black text-indigo-700 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</span>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[10.5px] mb-1.5">
-              <span class="font-bold text-slate-700 dark:text-slate-300">Programação Diária:</span>
-              <span class="text-slate-500 font-medium">${count} dias</span>
+            <!-- Caixa Central de 4 Colunas -->
+            <div class="grid grid-cols-4 gap-1 py-2.5 px-1.5 bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/80 rounded-xl mb-3 text-center">
+              <div>
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">SERIGRAFIA</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.serigrafia}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pintores} pint.</span>
+                <span class="text-[9.5px] font-bold text-purple-600 dark:text-purple-400 block">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">COSTURA</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.costura}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pessCos} pess.</span>
+                <span class="text-[9.5px] font-bold text-emerald-600 dark:text-emerald-400 block">K: ${row.kanbanCost.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">MÁQ. PROG</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.maqProg}</span>
+                <span class="text-[9.5px] font-bold text-blue-600 dark:text-blue-400 block mt-1">K.Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">MONTAGEM</span>
+                <span class="text-xs font-black text-cyan-600 dark:text-cyan-400 font-excel mt-0.5 block">${row.montagem}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pessMont} pess.</span>
+              </div>
             </div>
+
+            <!-- Rodapé Programação Diária -->
+            <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] mb-2">
+              <div class="flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span class="font-bold text-slate-800 dark:text-slate-200">Programação Diária</span>
+                <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-300 text-[9.5px] font-extrabold">${count} dias</span>
+              </div>
+              <div class="text-[10.5px] text-slate-500 dark:text-slate-400">
+                Total Alocado: <strong class="text-slate-900 dark:text-white font-excel">${row.totalVolume.toLocaleString('pt-BR')} prs</strong>
+              </div>
+            </div>
+
+            <!-- Chips de Datas -->
             <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
               ${chips.join('')}
             </div>
@@ -1476,9 +1543,11 @@
 
       container.innerHTML = dataCorte.map(row => {
         let chips = [];
+        let count = 0;
         currentDates.forEach(dk => {
           const v = row.dates[dk];
           if (v && v.total > 0) {
+            count++;
             chips.push(`
               <button onclick="openDetailSidebar('${encodeURIComponent(row.apoio)}', '${encodeURIComponent(row.modelo)}', '${dk}')" class="flex-shrink-0 bg-slate-50 active:bg-emerald-100 border border-slate-200 dark:bg-slate-950/80 dark:active:bg-emerald-950/40 dark:border-slate-800 active:scale-95 transition rounded-xl px-2.5 py-1.5 text-center cursor-pointer min-w-[68px]">
                 <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">${dk}</span>
@@ -1490,38 +1559,50 @@
         });
 
         return `
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-l-full"></div>
-            <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-4 relative overflow-hidden shadow-xs">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-emerald-600"></div>
+            <div class="flex items-start justify-between gap-2 mb-3 pt-0.5">
               <div class="space-y-1">
-                <div class="flex items-center flex-wrap gap-1.5">
-                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">APOIO ${row.apoio}</span>
+                <div class="flex items-center flex-wrap gap-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[10.5px] font-black bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 tracking-wide">APOIO ${row.apoio}</span>
                   <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">${row.status}</span>
                 </div>
-                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
-                <span class="text-[10.5px] text-slate-500 dark:text-slate-400">Serigrafia: <strong class="text-slate-800 dark:text-white">${row.serig}</strong></span>
+                <h2 class="text-[15px] font-black text-slate-900 dark:text-white tracking-tight leading-snug pt-0.5">${row.modelo}</h2>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400">Serigrafia: <strong class="text-slate-800 dark:text-white">${row.serig}</strong></span>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
-                  <span class="text-base font-black text-emerald-600 dark:text-emerald-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
-                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                  <span class="text-xl font-black text-emerald-600 dark:text-emerald-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10.5px] font-bold text-slate-400">prs</span>
                 </div>
                 <div class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">Total a Cortar</div>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2.5 text-center">
-              <div class="bg-emerald-50 dark:bg-emerald-950/20 p-1.5 rounded-lg border border-emerald-200 dark:border-emerald-900/40">
-                <span class="text-[9px] font-bold uppercase text-emerald-700 dark:text-emerald-400 block">Corte Automático</span>
-                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.totalAuto.toLocaleString('pt-BR')} prs</span>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/40 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300">Corte Auto</span>
+                <span class="text-xs font-black text-emerald-700 dark:text-emerald-400 font-excel">${row.totalAuto.toLocaleString('pt-BR')} prs</span>
               </div>
-              <div class="bg-amber-50 dark:bg-amber-950/20 p-1.5 rounded-lg border border-amber-200 dark:border-amber-900/40">
-                <span class="text-[9px] font-bold uppercase text-amber-700 dark:text-amber-400 block">Corte Manual</span>
-                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.totalManual.toLocaleString('pt-BR')} prs</span>
+              <div class="bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">Corte Manual</span>
+                <span class="text-xs font-black text-amber-700 dark:text-amber-400 font-excel">${row.totalManual.toLocaleString('pt-BR')} prs</span>
               </div>
             </div>
 
-            <div class="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Programação de Corte:</div>
+            <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] mb-2">
+              <div class="flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span class="font-bold text-slate-800 dark:text-slate-200">Programação de Corte</span>
+                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-950/70 dark:text-emerald-300 text-[9.5px] font-extrabold">${count} dias</span>
+              </div>
+              <div class="text-[10.5px] text-slate-500 dark:text-slate-400">
+                Saldo: <strong class="text-slate-900 dark:text-white font-excel">${row.totalSaldoCorte.toLocaleString('pt-BR')} prs</strong>
+              </div>
+            </div>
+
             <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
               ${chips.join('')}
             </div>
@@ -1560,57 +1641,85 @@
         });
 
         return `
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-l-full"></div>
-            <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-4 relative overflow-hidden shadow-xs">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-purple-600"></div>
+            <div class="flex items-start justify-between gap-2 mb-3 pt-0.5">
               <div class="space-y-1">
-                <div class="flex items-center flex-wrap gap-1.5">
-                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">SERIG ${row.serigrafia}</span>
-                  <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Apoio: <strong class="text-slate-900 dark:text-white">${row.apoio}</strong></span>
+                <div class="flex items-center flex-wrap gap-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[10.5px] font-black bg-purple-900 text-white dark:bg-purple-950 dark:text-purple-200 tracking-wide">SERIG ${row.serigrafia}</span>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Apoio: <strong class="text-slate-900 dark:text-white">${row.apoio}</strong></span>
                 </div>
-                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
+                <h2 class="text-[15px] font-black text-slate-900 dark:text-white tracking-tight leading-snug pt-0.5">${row.modelo}</h2>
                 <div class="text-[10.5px] text-slate-500 dark:text-slate-400">Cor: <span class="text-slate-800 dark:text-slate-200 font-bold">${row.cor}</span></div>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
-                  <span class="text-base font-black text-purple-600 dark:text-purple-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
-                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                  <span class="text-xl font-black text-purple-600 dark:text-purple-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10.5px] font-bold text-slate-400">prs</span>
                 </div>
                 <div class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">${row.pintores} Pintores</div>
               </div>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 py-2 px-1.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2 text-center">
-              <div>
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Serigrafia</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.serigrafia}</span>
-                <span class="text-[9px] text-slate-500 font-medium block">
-                  ${row.pintores} pint. • <strong class="text-purple-600 dark:text-purple-400">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</strong>
-                </span>
+            <!-- Grade 2x2 de Indicadores -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Pess. Apoio</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.pessApoio}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
-                <span class="text-[9px] text-slate-500 font-medium block leading-tight">
-                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Kanban Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
-                </span>
+              <div class="bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Freq</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.freq}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
-                <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Kanban Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/50 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">Supermercado</span>
+                <span class="text-xs font-black text-amber-700 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
-                <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
-                <span class="text-[9px] text-slate-500 font-medium">${row.pessMont} pess.</span>
+              <div class="bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-indigo-800 dark:text-indigo-300">Qtd. Apoio</span>
+                <span class="text-xs font-black text-indigo-700 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</span>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[10.5px] mb-1.5">
-              <span class="font-bold text-slate-700 dark:text-slate-300">Datas Programadas:</span>
-              <span class="text-slate-500 font-medium">${count} dias</span>
+            <!-- Caixa Central de 4 Colunas -->
+            <div class="grid grid-cols-4 gap-1 py-2.5 px-1.5 bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/80 rounded-xl mb-3 text-center">
+              <div>
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">SERIGRAFIA</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.serigrafia}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pintores} pint.</span>
+                <span class="text-[9.5px] font-bold text-purple-600 dark:text-purple-400 block">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">COSTURA</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.costura}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pessCos} pess.</span>
+                <span class="text-[9.5px] font-bold text-emerald-600 dark:text-emerald-400 block">K: ${row.kanbanCost.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">MÁQ. PROG</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.maqProg}</span>
+                <span class="text-[9.5px] font-bold text-blue-600 dark:text-blue-400 block mt-1">K.Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">MONTAGEM</span>
+                <span class="text-xs font-black text-cyan-600 dark:text-cyan-400 font-excel mt-0.5 block">${row.montagem}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pessMont} pess.</span>
+              </div>
             </div>
+
+            <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] mb-2">
+              <div class="flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span class="font-bold text-slate-800 dark:text-slate-200">Datas Programadas</span>
+                <span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-600 dark:bg-purple-950/70 dark:text-purple-300 text-[9.5px] font-extrabold">${count} dias</span>
+              </div>
+              <div class="text-[10.5px] text-slate-500 dark:text-slate-400">
+                Total Alocado: <strong class="text-slate-900 dark:text-white font-excel">${row.totalVolume.toLocaleString('pt-BR')} prs</strong>
+              </div>
+            </div>
+
             <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
               ${chips.join('')}
             </div>
@@ -1659,70 +1768,89 @@
           : `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border border-teal-300 dark:border-teal-800">ENF</span>`;
 
         const soladoBadge = (row.sola && row.sola !== '---' && row.sola !== '')
-          ? `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/90 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">Solado: OK</span>`
-          : `<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Sem Solado</span>`;
+          ? `<span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/90 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Solado: OK</span></span>`
+          : `<span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Sem Solado</span>`;
 
         return `
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3.5 relative overflow-hidden shadow-xs">
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 rounded-l-full"></div>
-            <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-4 relative overflow-hidden shadow-xs">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-teal-600"></div>
+            <div class="flex items-start justify-between gap-2 mb-3 pt-0.5">
               <div class="space-y-1">
-                <div class="flex items-center flex-wrap gap-1.5">
-                  <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">APOIO ${row.apoio}</span>
+                <div class="flex items-center flex-wrap gap-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[10.5px] font-black bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 tracking-wide">APOIO ${row.apoio}</span>
                   ${badgeTipo}
-                  <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-900 dark:text-white">${row.familia}</strong></span>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Família: <strong class="text-slate-800 dark:text-white">${row.familia}</strong></span>
                 </div>
-                <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-snug">${row.modelo}</h2>
-                <div class="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  <span>Pess. Apoio: <strong class="text-slate-800 dark:text-slate-200">${row.pessApoio}</strong></span>
-                  <span>•</span>
-                  <span>Freq: <strong class="text-slate-800 dark:text-slate-200">${row.freq}</strong></span>
-                  <span>•</span>
-                  <span>Supermercado: <strong class="text-amber-600 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</strong></span>
-                  <span>•</span>
-                  <span>QTD.Apoio: <strong class="text-indigo-600 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</strong></span>
-                </div>
+                <h2 class="text-[15px] font-black text-slate-900 dark:text-white tracking-tight leading-snug pt-0.5">${row.modelo}</h2>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="flex items-baseline justify-end space-x-1">
-                  <span class="text-base font-black text-teal-600 dark:text-teal-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
-                  <span class="text-[10px] font-bold text-slate-400">prs</span>
+                  <span class="text-xl font-black text-teal-600 dark:text-teal-400 font-excel">${row.totalVolume.toLocaleString('pt-BR')}</span>
+                  <span class="text-[10.5px] font-bold text-slate-400">prs</span>
                 </div>
                 <div class="mt-1">${soladoBadge}</div>
               </div>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 py-2 px-1.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/70 rounded-xl my-2 text-center">
-              <div>
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Serigrafia</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.serigrafia}</span>
-                <span class="text-[9px] text-slate-500 font-medium block">
-                  ${row.pintores} pint. • <strong class="text-purple-600 dark:text-purple-400">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</strong>
-                </span>
+            <!-- Grade 2x2 de Indicadores -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Pess. Apoio</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.pessApoio}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Costura</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.costura}</span>
-                <span class="text-[9px] text-slate-500 font-medium block leading-tight">
-                  ${row.pessCos} pess. • <strong class="text-emerald-600 dark:text-emerald-400">Kanban Cost.: ${row.kanbanCost.toLocaleString('pt-BR')}</strong>
-                </span>
+              <div class="bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Freq</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel">${row.freq}</span>
               </div>
-             <div class="border-l border-slate-200 dark:border-slate-800">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Máq. Prog</span>
-                <span class="text-[11.5px] font-black text-slate-900 dark:text-white font-excel block">${row.maqProg}</span>
-                <span class="text-[9px] font-semibold text-blue-600 dark:text-blue-400">Kanban Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/50 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">Supermercado</span>
+                <span class="text-xs font-black text-amber-700 dark:text-amber-400 font-excel">${row.supermercado.toLocaleString('pt-BR')}</span>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-800">
-                <span class="text-[8.5px] font-bold text-slate-400 uppercase block">Montagem</span>
-                <span class="text-[11.5px] font-black text-cyan-600 dark:text-cyan-400 font-excel block">${row.montagem}</span>
-                <span class="text-[9px] text-slate-500 font-medium">${row.pessMont} pess.</span>
+              <div class="bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl px-3 py-2 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-indigo-800 dark:text-indigo-300">Qtd. Apoio</span>
+                <span class="text-xs font-black text-indigo-700 dark:text-indigo-400 font-excel">${row.giroApoio.toLocaleString('pt-BR')}</span>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[10.5px] mb-1.5">
-              <span class="font-bold text-slate-700 dark:text-slate-300">Datas de Retorno:</span>
-              <span class="text-slate-500 font-medium">${count} dias</span>
+            <!-- Caixa Central de 4 Colunas -->
+            <div class="grid grid-cols-4 gap-1 py-2.5 px-1.5 bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/80 rounded-xl mb-3 text-center">
+              <div>
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">SERIGRAFIA</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.serigrafia}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pintores} pint.</span>
+                <span class="text-[9.5px] font-bold text-purple-600 dark:text-purple-400 block">Giro: ${row.serigGiro.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">COSTURA</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.costura}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pessCos} pess.</span>
+                <span class="text-[9.5px] font-bold text-emerald-600 dark:text-emerald-400 block">K: ${row.kanbanCost.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">MÁQ. PROG</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white font-excel mt-0.5 block">${row.maqProg}</span>
+                <span class="text-[9.5px] font-bold text-blue-600 dark:text-blue-400 block mt-1">K.Prog: ${row.kanbanProg.toLocaleString('pt-BR')}</span>
+              </div>
+              <div class="border-l border-slate-200 dark:border-slate-800 px-0.5">
+                <span class="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider block">MONTAGEM</span>
+                <span class="text-xs font-black text-cyan-600 dark:text-cyan-400 font-excel mt-0.5 block">${row.montagem}</span>
+                <span class="text-[9.5px] text-slate-500 font-medium block mt-0.5">${row.pessMont} pess.</span>
+              </div>
             </div>
+
+            <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] mb-2">
+              <div class="flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span class="font-bold text-slate-800 dark:text-slate-200">Datas de Retorno</span>
+                <span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-600 dark:bg-teal-950/70 dark:text-teal-300 text-[9.5px] font-extrabold">${count} dias</span>
+              </div>
+              <div class="text-[10.5px] text-slate-500 dark:text-slate-400">
+                Total Alocado: <strong class="text-slate-900 dark:text-white font-excel">${row.totalVolume.toLocaleString('pt-BR')} prs</strong>
+              </div>
+            </div>
+
             <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
               ${chips.join('')}
             </div>
@@ -1921,15 +2049,25 @@
       closeDateModal();
     }
 
-    function updateStatus(color, text) {
-      const icon = document.getElementById('statusWifiIcon');
+function updateStatus(color, text) {
+      const badge = document.getElementById('statusBadge');
+      const dot = document.getElementById('statusDot');
       const label = document.getElementById('statusText');
-      if (icon) {
-        icon.className = `w-3 h-3 transition-colors ${color === 'emerald' ? 'text-emerald-500' : (color === 'amber' ? 'text-amber-500' : 'text-rose-500')}`;
-      }
-      if (label) {
-        label.className = `text-[10.5px] font-bold ${color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' : (color === 'amber' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-500')}`;
-        label.textContent = text;
+
+      if (!badge || !dot || !label) return;
+
+      if (color === 'amber') {
+        badge.className = "inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold whitespace-nowrap bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/80 dark:text-amber-400 dark:border-amber-800/80 transition-colors";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping";
+        label.textContent = text || "Sincronizando...";
+      } else if (color === 'emerald') {
+        badge.className = "inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-400 dark:border-emerald-800/80 transition-colors";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
+        label.textContent = "On";
+      } else {
+        badge.className = "inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold whitespace-nowrap bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/80 dark:text-rose-400 dark:border-rose-800/80 transition-colors";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-rose-500";
+        label.textContent = "Off";
       }
     }
 
